@@ -2,8 +2,14 @@ require './lib/enrollment'
 require 'csv'
 
 class EnrollmentRepository
+  attr_reader :enrollments
+
   def initialize
     @enrollments = []
+  end
+
+  def add_enrollment(enrollment)
+    @enrollments << enrollment
   end
 
   def load_data(header_label_and_file)
@@ -20,7 +26,7 @@ class EnrollmentRepository
         holding[:kindergarten_participation].merge!({year => percent})
       else
         enrollment = Enrollment.new(holding)
-        @enrollments << enrollment
+        add_enrollment(enrollment)
         holding = {:name => name, :kindergarten_participation => {year => percent}}
       end
     end
