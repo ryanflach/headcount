@@ -4,8 +4,8 @@ require 'csv'
 class DistrictRepository
   attr_reader :districts
 
-  def initialize
-    @districts = []
+  def initialize(districts = [])
+    @districts = districts
   end
 
   def add_district(district)
@@ -29,7 +29,7 @@ class DistrictRepository
     contents.each do |row|
       name = row[:location]
       district = District.new({:name => name})
-      @districts << district
+      add_district(district)
     end
   end
 end
