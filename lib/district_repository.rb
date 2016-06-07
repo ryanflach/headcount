@@ -1,27 +1,26 @@
 require './lib/district'
+require './lib/enrollment_repository'
 require 'csv'
 
 class DistrictRepository
   attr_reader :districts
 
-  def initialize(districts = [])
+  def initialize(districts = {})
     @districts = districts
     @enrollment = EnrollmentRepository.new
   end
 
   def add_district(district)
-    @districts << district
+    @districts[district.name] = district
   end
 
   def find_by_name(district_name)
-    name = district_name.upcase
-    return nil if districts.none? { |district| district.name == name }
-    districts.find { |district| district.name == name}
+    districts[district_name.upcase]
   end
 
   def find_all_matching(name_fragment)
-    name = name_fragment.upcase
-    matches = districts.select { |district| district.name.include?(name) }
+    matches = districts.keys.select { |key| key.include?(name_fragment.upcase) }
+    matches.map { |match| districts[match] }
   end
 
   def load_data(header_label_and_file)
@@ -31,6 +30,7 @@ class DistrictRepository
     CSV.foreach(filename, headers: true, header_converters: :symbol) do |row|
       name = row[:location]
       district = District.new({:name => name})
+      # district = repo[name] ? repo[name] : District.new({:name => name})
       add_district(district)
     end
   end
