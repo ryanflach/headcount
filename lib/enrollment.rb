@@ -1,23 +1,28 @@
 class Enrollment
-  attr_reader :name,
-              :kindergarten_participation
 
   def initialize(enrollment_data)
-    @name = enrollment_data[:name].upcase
-    @kindergarten_participation = enrollment_data[:kindergarten_participation]
+    @enrollment_data = enrollment_data
+  end
+
+  def name
+    @enrollment_data[:name].upcase
+  end
+
+  def truncate_float(float)
+    (float * 1000).floor / 1000.0
   end
 
   def kindergarten_participation_by_year
-    truncated = {}
-    kindergarten_participation.each do |year, percent|
-      truncated[year] = percent.to_f.round(3)
-    end
-    truncated.sort_by {|year, percent| year}.to_h
+    @enrollment_data[:kindergarten_participation].map do |year, percent|
+      [year, truncate_float(percent.to_f)]
+    end.sort_by {|year, percent| year}.to_h
   end
 
   def kindergarten_participation_in_year(year)
-    data = kindergarten_participation_by_year
-    return nil unless data.has_key?(year)
-    data[year]
+    return nil unless @enrollment_data[:kindergarten_participation].has_key?(year)
+    data = @enrollment_data[:kindergarten_participation].find do |year, percent|
+      year == year
+    end
+    truncate_float(data[1].to_f)
   end
 end

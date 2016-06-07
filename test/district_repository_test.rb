@@ -7,6 +7,13 @@ class DistrictRepositoryTest < Minitest::Test
     assert_equal [], dr.districts
   end
 
+  def test_it_can_be_initialized_with_districts
+    district_one = District.new({:name => "Academy 20"})
+    district_two = District.new({:name => "Academic University"})
+    dr = DistrictRepository.new([district_one, district_two])
+    assert_equal [district_one, district_two], dr.districts
+  end
+
   def test_it_can_add_instances_of_a_district_into_districts
     dr = DistrictRepository.new
     district_one = District.new({:name => "Academy 20"})
