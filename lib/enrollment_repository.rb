@@ -4,18 +4,16 @@ require 'csv'
 class EnrollmentRepository
   attr_reader :enrollments
 
-  def initialize(enrollments = [])
+  def initialize(enrollments = {})
     @enrollments = enrollments
   end
 
   def add_enrollment(enrollment)
-    @enrollments << enrollment
+    @enrollments[enrollment.name] = enrollment
   end
 
-  def find_by_name(name)
-    name = name.upcase
-    return nil if enrollments.none? { |enrollment| enrollment.name == name }
-    enrollments.find { |enrollment| enrollment.name == name}
+  def find_by_name(district_name)
+    enrollments[district_name.upcase]
   end
 
   def load_data(header_label_and_file)
