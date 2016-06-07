@@ -6,6 +6,7 @@ class DistrictRepository
 
   def initialize(districts = [])
     @districts = districts
+    @enrollment = EnrollmentRepository.new
   end
 
   def add_district(district)
@@ -24,12 +25,22 @@ class DistrictRepository
   end
 
   def load_data(header_label_and_file)
+    repo = check_repository_type(header_label_and_file.keys.first)
+    repo.load_data(header_label_and_file)
     filename = header_label_and_file.values[0].values[0]
-    contents = CSV.open(filename, headers: true, header_converters: :symbol)
-    contents.each do |row|
+    CSV.foreach(filename, headers: true, header_converters: :symbol) do |row|
       name = row[:location]
       district = District.new({:name => name})
       add_district(district)
     end
   end
+
+  def check_repository_type(key)
+    possible_repos[key]
+  end
+
+  def possible_repos
+    {:enrollment => @enrollment}
+  end
+
 end

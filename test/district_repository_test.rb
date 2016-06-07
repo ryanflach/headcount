@@ -2,6 +2,7 @@ require './test/test_helper'
 require './lib/district_repository'
 
 class DistrictRepositoryTest < Minitest::Test
+
   def test_it_has_a_means_of_holding_District_instances
     dr = DistrictRepository.new
     assert_equal [], dr.districts

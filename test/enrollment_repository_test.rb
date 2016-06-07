@@ -2,6 +2,7 @@ require './test/test_helper'
 require './lib/enrollment_repository'
 
 class EnrollmentRepositoryTest < Minitest::Test
+
   def test_it_has_a_means_of_holding_District_instances
     er = EnrollmentRepository.new
     assert_equal [], er.enrollments
