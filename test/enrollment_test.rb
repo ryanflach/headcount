@@ -2,6 +2,7 @@ require './test/test_helper'
 require './lib/enrollment'
 
 class EnrollmentTest < Minitest::Test
+  
   def test_it_can_access_the_name_of_stored_districts
     enrollment = Enrollment.new({:name => "ACADEMY 20", :kindergarten_participation => {2007 => '.304586'}})
     assert_equal "ACADEMY 20", enrollment.name
