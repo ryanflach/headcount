@@ -18,26 +18,18 @@ class EnrollmentRepository
 
   def load_data(header_label_and_file)
     filename = header_label_and_file.values[0].values[0]
-    holding = {}
     CSV.foreach(filename, headers: true, header_converters: :symbol) do |row|
       name = row[:location]
       year = row[:timeframe].to_i
       percent = row[:data]
-      holding = compare_and_create_enrollments(holding, name, year, percent)
+      enrollment = Enrollment.new({:name => name, :kindergarten_participation => {year => percent}})
+      existing = find_by_name(enrollment.name)
+      if existing.nil?
+        add_enrollment(enrollment)
+      else
+        existing.kindergarten_participation.merge!({year => percent})
+      end
     end
-  end
-
-  def compare_and_create_enrollments(holding, name, year, percent)
-    if holding.empty?
-      holding = {:name => name, :kindergarten_participation => {year => percent}}
-    elsif holding.values.include?(name)
-      holding[:kindergarten_participation].merge!({year => percent})
-    else
-      enrollment = Enrollment.new(holding)
-      add_enrollment(enrollment)
-      holding = {:name => name, :kindergarten_participation => {year => percent}}
-    end
-    holding
   end
 
 end

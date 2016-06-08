@@ -1,7 +1,12 @@
 class Enrollment
+  # attr_accessor :enrollment_data
 
   def initialize(enrollment_data)
     @enrollment_data = enrollment_data
+  end
+
+  def kindergarten_participation
+    @enrollment_data[:kindergarten_participation]
   end
 
   def name
