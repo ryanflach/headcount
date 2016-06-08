@@ -29,8 +29,7 @@ class DistrictRepository
     filename = header_label_and_file.values[0].values[0]
     CSV.foreach(filename, headers: true, header_converters: :symbol) do |row|
       name = row[:location]
-      district = District.new({:name => name})
-      # district = repo[name] ? repo[name] : District.new({:name => name})
+      district = repo.enrollments[name.upcase] ? repo.enrollments[name.upcase] : District.new({:name => name})
       add_district(district)
     end
   end
