@@ -13,11 +13,6 @@ class EnrollmentTest < Minitest::Test
     assert_equal "ACADEMY 20", enrollment.name
   end
 
-  def test_it_can_truncate_a_float_to_three_digits
-    enrollment = Enrollment.new({:name => "ACADEMY 20"})
-    assert_equal 0.304, enrollment.truncate_float(0.304586)
-  end
-
   def test_it_can_return_the_kindergarten_participation_by_year_with_percent_truncated
     enrollment = Enrollment.new({:name => "ACADEMY 20", :kindergarten_participation => {2007 => '.304586'}})
     assert_equal ({2007=>0.304}), enrollment.kindergarten_participation_by_year

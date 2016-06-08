@@ -1,4 +1,8 @@
+require_relative 'calculations'
+
 class Enrollment
+  include Calculations
+
   attr_accessor :enrollment_data
 
   def initialize(enrollment_data)
@@ -9,12 +13,14 @@ class Enrollment
     @enrollment_data[:kindergarten_participation]
   end
 
-  def name
-    @enrollment_data[:name].upcase
+  def kindergarten_participation_floats
+    kindergarten_participation.map do |key, value|
+      [key, value.to_f]
+    end.sort_by {|year, percent| year}.to_h
   end
 
-  def truncate_float(float)
-    (float * 1000).floor / 1000.0
+  def name
+    @enrollment_data[:name].upcase
   end
 
   def kindergarten_participation_by_year
@@ -29,4 +35,5 @@ class Enrollment
     end
     truncate_float(data[1].to_f) unless data.nil?
   end
+  
 end
