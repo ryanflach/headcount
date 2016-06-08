@@ -8,4 +8,8 @@ class District
     @district_data[:name].upcase
   end
 
+  def enrollment
+    @district_data[:enrollment]
+  end
+
 end

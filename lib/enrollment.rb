@@ -1,5 +1,5 @@
 class Enrollment
-  # attr_accessor :enrollment_data
+  attr_accessor :enrollment_data
 
   def initialize(enrollment_data)
     @enrollment_data = enrollment_data

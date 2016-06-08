@@ -36,6 +36,10 @@
         1991,
         1991,
         null,
+        0,
+        null,
+        1991,
+        null,
         null,
         null,
         1,
@@ -52,11 +56,15 @@
         1,
         null,
         1,
-        8,
+        1999,
         null,
         null,
         1,
-        9,
+        2000,
+        null,
+        null,
+        1,
+        0,
         null,
         null,
         null
@@ -100,7 +108,7 @@
       ],
       "/Users/Ryan/turing/1module/projects/headcount/lib/enrollment.rb": [
         1,
-        null,
+        1,
         null,
         1,
         3992,
@@ -111,7 +119,7 @@
         null,
         null,
         1,
-        6342,
+        4351,
         null,
         null,
         1,
@@ -239,6 +247,6 @@
         null
       ]
     },
-    "timestamp": 1465413668
+    "timestamp": 1465416276
   }
 }
