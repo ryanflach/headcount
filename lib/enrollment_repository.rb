@@ -1,4 +1,4 @@
-require './lib/enrollment'
+require_relative 'enrollment'
 require 'csv'
 
 class EnrollmentRepository
