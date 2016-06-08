@@ -18,11 +18,10 @@ class Enrollment
     end.sort_by {|year, percent| year}.to_h
   end
 
-  def kindergarten_participation_in_year(year)
-    return nil unless @enrollment_data[:kindergarten_participation].has_key?(year)
+  def kindergarten_participation_in_year(query_year)
     data = @enrollment_data[:kindergarten_participation].find do |year, percent|
-      year == year
+      year == query_year
     end
-    truncate_float(data[1].to_f)
+    truncate_float(data[1].to_f) unless data.nil?
   end
 end
