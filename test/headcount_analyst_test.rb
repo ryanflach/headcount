@@ -38,4 +38,20 @@ class HeadcountAnalystTest < Minitest::Test
     assert_equal expected, ha.kindergarten_participation_rate_variation_trend("ADAMS COUNTY 14", :against => "COLORADO")
   end
 
+  def test_it_can_find_and_return_kindergarten_enrollment_data_for_a_district
+    dr  = DistrictRepository.new
+    dr.load_data({:enrollment => {:kindergarten => "./test/data/Kinder_enroll_sample.csv"}})
+    ha = HeadcountAnalyst.new(dr)
+    expected = {2006 => 0.29331, 2007 => 0.30643}
+    assert_equal expected, ha.district_kindergarten_enrollment_data('adams county 14')
+  end
+
+  def test_it_can_find_and_return_as_a_hash_requested_district_and_comparison_kindergarten_enrollment_data
+    dr  = DistrictRepository.new
+    dr.load_data({:enrollment => {:kindergarten => "./test/data/Kinder_enroll_sample.csv"}})
+    ha = HeadcountAnalyst.new(dr)
+    expected = {:district => {2006 => 0.29331, 2007 => 0.30643}, :comparison => {2006 => 0.33677, 2007 => 0.39465}}
+    assert_equal expected, ha.kindergarten_district_and_comparison_data('adams county 14', :against => 'colorado')
+  end
+
 end

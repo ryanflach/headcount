@@ -13,6 +13,10 @@ class Enrollment
     @enrollment_data[:kindergarten_participation]
   end
 
+  def high_school_graduation
+    @enrollment_data[:high_school_graduation]
+  end
+
   def kindergarten_participation_floats
     kindergarten_participation.map do |key, value|
       [key, value.to_f]
@@ -35,5 +39,5 @@ class Enrollment
     end
     truncate_float(data[1].to_f) unless data.nil?
   end
-  
+
 end
