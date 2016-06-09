@@ -18,11 +18,12 @@ class Enrollment
   end
 
   def high_school_graduation
-    if @enrollment_data.has_key?(:high_school_graduation)
-      @enrollment_data[:high_school_graduation]
-    else
-      @enrollment_data[:high_school_graduation] = {}
-    end
+    return @enrollment_data[:high_school_graduation] if hs_grad_data_existing?
+    @enrollment_data[:high_school_graduation] = {}
+  end
+
+  def hs_grad_data_existing?
+    @enrollment_data.has_key?(:high_school_graduation)
   end
 
   def kindergarten_participation_floats

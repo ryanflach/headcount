@@ -12,4 +12,12 @@ class District
     @district_data[:enrollment]
   end
 
+  def no_kindergarten_participation?
+    @district_data[:enrollment].kindergarten_participation.empty?
+  end
+
+  def no_hs_grad_data?
+    @district_data[:enrollment].high_school_graduation.empty?
+  end
+
 end

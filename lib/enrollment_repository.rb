@@ -22,14 +22,10 @@ class EnrollmentRepository
   end
 
   def load_data(header_label_and_file)
-    num_files = header_label_and_file.values[0].values.count
-    num_files.times do |num|
-      filename = header_label_and_file.values[0].values[num]
+    header_label_and_file.values[0].values.each_with_index do |filename, index|
       CSV.foreach(filename, headers: true, header_converters: :symbol) do |row|
-        name = row[:location]
-        year = row[:timeframe].to_i
-        percent = row[:data]
-        grade_level = enrollment_types[header_label_and_file.values[0].keys[num]]
+        name, year, percent = row[:location], row[:timeframe].to_i, row[:data]
+        grade_level = enrollment_types[header_label_and_file.values[0].keys[index]]
         existing = find_by_name(name)
         if existing.nil?
           add_enrollment(Enrollment.new({:name => name, grade_level => {year => percent}}))

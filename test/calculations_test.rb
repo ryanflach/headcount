@@ -8,4 +8,9 @@ class CalculationsTest < Minitest::Test
     assert_equal 0.304, truncate_float(0.304586)
   end
 
+  def test_it_can_calculate_and_return_a_bool_if_results_greater_than_70_percent
+    assert calculate_correlation([true, true, true, false])
+    refute calculate_correlation([false, true, true, false])
+  end
+
 end
