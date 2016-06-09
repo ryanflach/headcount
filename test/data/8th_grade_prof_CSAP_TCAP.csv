@@ -1,0 +1,76 @@
+Location,Score,TimeFrame,DataFormat,Data
+Colorado,Math,2008,Percent,0.469
+Colorado,Math,2009,Percent,0.499
+Colorado,Math,2010,Percent,0.51
+Colorado,Reading,2008,Percent,0.703
+Colorado,Reading,2009,Percent,0.726
+Colorado,Reading,2010,Percent,0.679
+Colorado,Writing,2008,Percent,0.529
+Colorado,Writing,2009,Percent,0.528
+Colorado,Writing,2010,Percent,0.549
+Colorado,Reading,2011,Percent,0.67
+Colorado,Math,2011,Percent,0.513
+Colorado,Math,2012,Percent,0.515
+Colorado,Writing,2011,Percent,0.543
+Colorado,Writing,2012,Percent,0.548
+Colorado,Reading,2012,Percent,0.671
+Colorado,Math,2013,Percent,0.51482
+Colorado,Math,2014,Percent,0.52385
+Colorado,Reading,2013,Percent,0.66888
+Colorado,Reading,2014,Percent,0.66351
+Colorado,Writing,2013,Percent,0.55788
+Colorado,Writing,2014,Percent,0.56183
+ACADEMY 20,Math,2008,Percent,0.64
+ACADEMY 20,Math,2009,Percent,0.656
+ACADEMY 20,Math,2010,Percent,0.672
+ACADEMY 20,Reading,2008,Percent,0.843
+ACADEMY 20,Reading,2009,Percent,0.825
+ACADEMY 20,Reading,2010,Percent,0.863
+ACADEMY 20,Writing,2008,Percent,0.734
+ACADEMY 20,Writing,2009,Percent,0.701
+ACADEMY 20,Writing,2010,Percent,0.754
+ACADEMY 20,Reading,2011,Percent,0.83221
+ACADEMY 20,Math,2011,Percent,0.65339
+ACADEMY 20,Math,2012,Percent,0.68197
+ACADEMY 20,Writing,2011,Percent,0.74579
+ACADEMY 20,Writing,2012,Percent,0.73839
+ACADEMY 20,Reading,2012,Percent,0.83352
+ACADEMY 20,Math,2013,Percent,0.6613
+ACADEMY 20,Math,2014,Percent,0.68496
+ACADEMY 20,Reading,2013,Percent,0.85286
+ACADEMY 20,Reading,2014,Percent,0.827
+ACADEMY 20,Writing,2013,Percent,0.75069
+ACADEMY 20,Writing,2014,Percent,0.74789
+PARK (ESTES PARK) R-3,Math,2012,Percent,0.64103
+PARK COUNTY RE-2,Math,2012,Percent,0.57576
+PAWNEE RE-12,Math,2012,Percent,N/A
+PEYTON 23 JT,Math,2012,Percent,0.48077
+PLAINVIEW RE-2,Math,2012,Percent,N/A
+PLATEAU RE-5,Math,2012,Percent,0.82353
+PLATEAU VALLEY 50,Math,2012,Percent,0.52381
+PLATTE CANYON 1,Math,2012,Percent,0.7191
+PLATTE VALLEY RE-3,Math,2012,Percent,N/A
+PLATTE VALLEY RE-7,Math,2012,Percent,0.47126
+POUDRE R-1,Math,2012,Percent,0.67198
+PRAIRIE RE-11,Math,2012,Percent,N/A
+PRIMERO REORGANIZED 2,Math,2012,Percent,N/A
+PRITCHETT RE-3,Math,2012,Percent,N/A
+PUEBLO CITY 60,Math,2012,Percent,0.26888
+PUEBLO COUNTY RURAL 70,Math,2012,Percent,0.50064
+PARK (ESTES PARK) R-3,Writing,2011,Percent,0.52381
+PARK COUNTY RE-2,Writing,2011,Percent,0.75
+PAWNEE RE-12,Writing,2011,Percent,N/A
+PEYTON 23 JT,Writing,2011,Percent,0.62
+PLAINVIEW RE-2,Writing,2011,Percent,N/A
+PLATEAU RE-5,Writing,2011,Percent,N/A
+PLATEAU VALLEY 50,Writing,2011,Percent,N/A
+PLATTE CANYON 1,Writing,2011,Percent,0.65625
+PLATTE VALLEY RE-3,Writing,2011,Percent,N/A
+PLATTE VALLEY RE-7,Writing,2011,Percent,0.55208
+POUDRE R-1,Writing,2011,Percent,0.67194
+PRAIRIE RE-11,Writing,2011,Percent,N/A
+PRIMERO REORGANIZED 2,Writing,2011,Percent,0.35294
+PRITCHETT RE-3,Writing,2011,Percent,N/A
+PUEBLO CITY 60,Writing,2011,Percent,0.41026
+PUEBLO COUNTY RURAL 70,Writing,2011,Percent,0.57276
+YUMA SCHOOL DISTRICT 1,Writing,2014,Percent,0.30189
