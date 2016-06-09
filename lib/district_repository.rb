@@ -29,11 +29,7 @@ class DistrictRepository
     filename = header_label_and_file.values[0].values[0]
     CSV.foreach(filename, headers: true, header_converters: :symbol) do |row|
       name = row[:location]
-      if repo.enrollments[name.upcase]
-        district = District.new({:name => name, :enrollment => repo.enrollments[name.upcase]})
-      else
-        district = District.new({:name => name})
-      end
+      district = District.new({:name => name}, self)
       add_district(district)
     end
   end
@@ -44,6 +40,10 @@ class DistrictRepository
 
   def possible_repos
     {:enrollment => @enrollment}
+  end
+
+  def find_enrollment(name)
+    @enrollment.find_by_name(name)
   end
 
 end

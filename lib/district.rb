@@ -1,7 +1,8 @@
 class District
 
-  def initialize(district_data)
+  def initialize(district_data, district_repo = nil)
     @district_data = district_data
+    @district_repo = district_repo
   end
 
   def name
@@ -9,15 +10,15 @@ class District
   end
 
   def enrollment
-    @district_data[:enrollment]
+    @district_repo.find_enrollment(name)
   end
 
   def no_kindergarten_participation?
-    @district_data[:enrollment].kindergarten_participation.empty?
+    enrollment.kindergarten_participation.empty?
   end
 
   def no_hs_grad_data?
-    @district_data[:enrollment].high_school_graduation.empty?
+    enrollment.high_school_graduation.empty?
   end
 
 end

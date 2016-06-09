@@ -14,27 +14,27 @@
       <img src="./assets/0.10.0/loading.gif" alt="loading"/>
     </div>
     <div id="wrapper" style="display:none;">
-      <div class="timestamp">Generated <abbr class="timeago" title="2016-06-09T15:53:22-06:00">2016-06-09T15:53:22-06:00</abbr></div>
+      <div class="timestamp">Generated <abbr class="timeago" title="2016-06-09T17:09:54-06:00">2016-06-09T17:09:54-06:00</abbr></div>
       <ul class="group_tabs"></ul>
 
       <div id="content">
         <div class="file_list_container" id="AllFiles">
   <h2>
     <span class="group_name">All Files</span>
-    (<span class="covered_percent"><span class="green">99.7%</span></span>
+    (<span class="covered_percent"><span class="green">100.0%</span></span>
      covered at
      <span class="covered_strength">
        <span class="green">
-         118.55
+         118.79
        </span>
     </span> hits/line)
   </h2>
   <a name="AllFiles"></a>
   <div>
     <b>11</b> files in total.
-    <b>330</b> relevant lines. 
-    <span class="green"><b>329</b> lines covered</span> and
-    <span class="red"><b>1</b> lines missed </span>
+    <b>331</b> relevant lines. 
+    <span class="green"><b>331</b> lines covered</span> and
+    <span class="red"><b>0</b> lines missed </span>
   </div>
   <table class="file_list">
     <thead>
@@ -63,21 +63,21 @@
       <tr>
         <td class="strong"><a href="#6318a27e12fadd487c4b20789752afd905c65464" class="src_link" title="lib/district.rb">lib/district.rb</a></td>
         <td class="green strong">100.0 %</td>
-        <td>23</td>
-        <td>11</td>
-        <td>11</td>
+        <td>24</td>
+        <td>12</td>
+        <td>12</td>
         <td>0</td>
-        <td>393.5</td>
+        <td>544.6</td>
       </tr>
       
       <tr>
         <td class="strong"><a href="#6771d8c7613c50a2eaf69838e83961bafd0446eb" class="src_link" title="lib/district_repository.rb">lib/district_repository.rb</a></td>
-        <td class="green strong">96.55 %</td>
+        <td class="green strong">100.0 %</td>
         <td>49</td>
         <td>29</td>
-        <td>28</td>
-        <td>1</td>
-        <td>371.1</td>
+        <td>29</td>
+        <td>0</td>
+        <td>299.9</td>
       </tr>
       
       <tr>
@@ -97,7 +97,7 @@
         <td>25</td>
         <td>25</td>
         <td>0</td>
-        <td>811.4</td>
+        <td>813.7</td>
       </tr>
       
       <tr>
@@ -277,8 +277,8 @@
     <h3>lib/district.rb</h3>
     <h4><span class="green">100.0 %</span> covered</h4>
     <div>
-      <b>11</b> relevant lines. 
-      <span class="green"><b>11</b> lines covered</span> and
+      <b>12</b> relevant lines. 
+      <span class="green"><b>12</b> lines covered</span> and
       <span class="red"><b>0</b> lines missed.</span>
     </div>
   </div>
@@ -301,7 +301,7 @@
         <li class="covered" data-hits="1" data-linenumber="3">
           <span class="hits">1</span>
           
-          <code class="ruby">  def initialize(district_data)</code>
+          <code class="ruby">  def initialize(district_data, district_repo = nil)</code>
         </li>
       
         <li class="covered" data-hits="2132" data-linenumber="4">
@@ -310,115 +310,121 @@
           <code class="ruby">    @district_data = district_data</code>
         </li>
       
-        <li class="never" data-hits="" data-linenumber="5">
+        <li class="covered" data-hits="2132" data-linenumber="5">
+          <span class="hits">2132</span>
           
-          
-          <code class="ruby">  end</code>
+          <code class="ruby">    @district_repo = district_repo</code>
         </li>
       
         <li class="never" data-hits="" data-linenumber="6">
           
           
+          <code class="ruby">  end</code>
+        </li>
+      
+        <li class="never" data-hits="" data-linenumber="7">
+          
+          
           <code class="ruby"></code>
         </li>
       
-        <li class="covered" data-hits="1" data-linenumber="7">
+        <li class="covered" data-hits="1" data-linenumber="8">
           <span class="hits">1</span>
           
           <code class="ruby">  def name</code>
         </li>
       
-        <li class="covered" data-hits="2133" data-linenumber="8">
-          <span class="hits">2133</span>
+        <li class="covered" data-hits="2190" data-linenumber="9">
+          <span class="hits">2190</span>
           
           <code class="ruby">    @district_data[:name].upcase</code>
-        </li>
-      
-        <li class="never" data-hits="" data-linenumber="9">
-          
-          
-          <code class="ruby">  end</code>
         </li>
       
         <li class="never" data-hits="" data-linenumber="10">
           
           
+          <code class="ruby">  end</code>
+        </li>
+      
+        <li class="never" data-hits="" data-linenumber="11">
+          
+          
           <code class="ruby"></code>
         </li>
       
-        <li class="covered" data-hits="1" data-linenumber="11">
+        <li class="covered" data-hits="1" data-linenumber="12">
           <span class="hits">1</span>
           
           <code class="ruby">  def enrollment</code>
         </li>
       
-        <li class="covered" data-hits="39" data-linenumber="12">
-          <span class="hits">39</span>
+        <li class="covered" data-hits="57" data-linenumber="13">
+          <span class="hits">57</span>
           
-          <code class="ruby">    @district_data[:enrollment]</code>
-        </li>
-      
-        <li class="never" data-hits="" data-linenumber="13">
-          
-          
-          <code class="ruby">  end</code>
+          <code class="ruby">    @district_repo.find_enrollment(name)</code>
         </li>
       
         <li class="never" data-hits="" data-linenumber="14">
           
           
+          <code class="ruby">  end</code>
+        </li>
+      
+        <li class="never" data-hits="" data-linenumber="15">
+          
+          
           <code class="ruby"></code>
         </li>
       
-        <li class="covered" data-hits="1" data-linenumber="15">
+        <li class="covered" data-hits="1" data-linenumber="16">
           <span class="hits">1</span>
           
           <code class="ruby">  def no_kindergarten_participation?</code>
         </li>
       
-        <li class="covered" data-hits="9" data-linenumber="16">
+        <li class="covered" data-hits="9" data-linenumber="17">
           <span class="hits">9</span>
           
-          <code class="ruby">    @district_data[:enrollment].kindergarten_participation.empty?</code>
-        </li>
-      
-        <li class="never" data-hits="" data-linenumber="17">
-          
-          
-          <code class="ruby">  end</code>
+          <code class="ruby">    enrollment.kindergarten_participation.empty?</code>
         </li>
       
         <li class="never" data-hits="" data-linenumber="18">
           
           
+          <code class="ruby">  end</code>
+        </li>
+      
+        <li class="never" data-hits="" data-linenumber="19">
+          
+          
           <code class="ruby"></code>
         </li>
       
-        <li class="covered" data-hits="1" data-linenumber="19">
+        <li class="covered" data-hits="1" data-linenumber="20">
           <span class="hits">1</span>
           
           <code class="ruby">  def no_hs_grad_data?</code>
         </li>
       
-        <li class="covered" data-hits="9" data-linenumber="20">
+        <li class="covered" data-hits="9" data-linenumber="21">
           <span class="hits">9</span>
           
-          <code class="ruby">    @district_data[:enrollment].high_school_graduation.empty?</code>
-        </li>
-      
-        <li class="never" data-hits="" data-linenumber="21">
-          
-          
-          <code class="ruby">  end</code>
+          <code class="ruby">    enrollment.high_school_graduation.empty?</code>
         </li>
       
         <li class="never" data-hits="" data-linenumber="22">
           
           
-          <code class="ruby"></code>
+          <code class="ruby">  end</code>
         </li>
       
         <li class="never" data-hits="" data-linenumber="23">
+          
+          
+          <code class="ruby"></code>
+        </li>
+      
+        <li class="never" data-hits="" data-linenumber="24">
           
           
           <code class="ruby">end</code>
@@ -431,11 +437,11 @@
         <div class="source_table" id="6771d8c7613c50a2eaf69838e83961bafd0446eb">
   <div class="header">
     <h3>lib/district_repository.rb</h3>
-    <h4><span class="green">96.55 %</span> covered</h4>
+    <h4><span class="green">100.0 %</span> covered</h4>
     <div>
       <b>29</b> relevant lines. 
-      <span class="green"><b>28</b> lines covered</span> and
-      <span class="red"><b>1</b> lines missed.</span>
+      <span class="green"><b>29</b> lines covered</span> and
+      <span class="red"><b>0</b> lines missed.</span>
     </div>
   </div>
   
@@ -631,43 +637,43 @@
         <li class="covered" data-hits="2124" data-linenumber="32">
           <span class="hits">2124</span>
           
-          <code class="ruby">      if repo.enrollments[name.upcase]</code>
+          <code class="ruby">      district = District.new({:name =&gt; name}, self)</code>
         </li>
       
         <li class="covered" data-hits="2124" data-linenumber="33">
           <span class="hits">2124</span>
           
-          <code class="ruby">        district = District.new({:name =&gt; name, :enrollment =&gt; repo.enrollments[name.upcase]})</code>
+          <code class="ruby">      add_district(district)</code>
         </li>
       
         <li class="never" data-hits="" data-linenumber="34">
           
           
-          <code class="ruby">      else</code>
+          <code class="ruby">    end</code>
         </li>
       
-        <li class="missed" data-hits="0" data-linenumber="35">
+        <li class="never" data-hits="" data-linenumber="35">
           
           
-          <code class="ruby">        district = District.new({:name =&gt; name})</code>
+          <code class="ruby">  end</code>
         </li>
       
         <li class="never" data-hits="" data-linenumber="36">
           
           
-          <code class="ruby">      end</code>
+          <code class="ruby"></code>
         </li>
       
-        <li class="covered" data-hits="2124" data-linenumber="37">
-          <span class="hits">2124</span>
+        <li class="covered" data-hits="1" data-linenumber="37">
+          <span class="hits">1</span>
           
-          <code class="ruby">      add_district(district)</code>
+          <code class="ruby">  def check_repository_type(key)</code>
         </li>
       
-        <li class="never" data-hits="" data-linenumber="38">
+        <li class="covered" data-hits="8" data-linenumber="38">
+          <span class="hits">8</span>
           
-          
-          <code class="ruby">    end</code>
+          <code class="ruby">    possible_repos[key]</code>
         </li>
       
         <li class="never" data-hits="" data-linenumber="39">
@@ -685,13 +691,13 @@
         <li class="covered" data-hits="1" data-linenumber="41">
           <span class="hits">1</span>
           
-          <code class="ruby">  def check_repository_type(key)</code>
+          <code class="ruby">  def possible_repos</code>
         </li>
       
         <li class="covered" data-hits="8" data-linenumber="42">
           <span class="hits">8</span>
           
-          <code class="ruby">    possible_repos[key]</code>
+          <code class="ruby">    {:enrollment =&gt; @enrollment}</code>
         </li>
       
         <li class="never" data-hits="" data-linenumber="43">
@@ -709,13 +715,13 @@
         <li class="covered" data-hits="1" data-linenumber="45">
           <span class="hits">1</span>
           
-          <code class="ruby">  def possible_repos</code>
+          <code class="ruby">  def find_enrollment(name)</code>
         </li>
       
-        <li class="covered" data-hits="8" data-linenumber="46">
-          <span class="hits">8</span>
+        <li class="covered" data-hits="57" data-linenumber="46">
+          <span class="hits">57</span>
           
-          <code class="ruby">    {:enrollment =&gt; @enrollment}</code>
+          <code class="ruby">    @enrollment.find_by_name(name)</code>
         </li>
       
         <li class="never" data-hits="" data-linenumber="47">
@@ -1294,8 +1300,8 @@
           <code class="ruby">  def find_by_name(district_name)</code>
         </li>
       
-        <li class="covered" data-hits="2286" data-linenumber="16">
-          <span class="hits">2286</span>
+        <li class="covered" data-hits="2343" data-linenumber="16">
+          <span class="hits">2343</span>
           
           <code class="ruby">    enrollments[district_name.upcase]</code>
         </li>
