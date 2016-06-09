@@ -66,12 +66,17 @@ class HeadcountAnalyst
       else
         return kindergarten_participation_against_high_school_graduation(district).between?(0.6, 1.5)
       end
+    else
+      district.each do |district_name|
+        results << kindergarten_participation_against_high_school_graduation(district_name).between?(0.6, 1.5)
+      end
     end
     num_true = results.find_all { |bool| bool == true }.count
     (num_true / results.count.to_f) > 0.70
   end
 
   def no_kinder_data?(district)
+    # district.no_kindergarten_participation?
     district.enrollment.kindergarten_participation.empty?
   end
 
