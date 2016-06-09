@@ -10,25 +10,31 @@ class HeadcountAnalyst
   end
 
   def kindergarten_participation_rate_variation(district, comparison)
-    district_data = district_repo.find_by_name(district).enrollment.kindergarten_participation_floats
-    comparison_type = comparison.keys[0]
-    comparison_data = district_repo.find_by_name(comparison[comparison_type]).enrollment.kindergarten_participation_floats
-    truncate_float(find_average(district_data) / find_average(comparison_data))
+    data = kindergarten_district_and_comparison_data(district, comparison)
+    truncate_float(find_average(data[:district]) / find_average(data[:comparison]))
   end
 
   def kindergarten_participation_rate_variation_trend(district, comparison)
-    district_data = district_repo.find_by_name(district).enrollment.kindergarten_participation_floats
-    comparison_type = comparison.keys[0]
-    comparison_data = district_repo.find_by_name(comparison[comparison_type]).enrollment.kindergarten_participation_floats
-    trend = district_data.merge(comparison_data) do |year, district_percent, comparison_percent|
-      truncate_float(district_percent / comparison_percent)
+    data = kindergarten_district_and_comparison_data(district, comparison)
+    trend = data[:district].merge(data[:comparison]) do |year, dist_percent, comp_percent|
+      truncate_float(dist_percent / comp_percent)
     end
   end
 
+  def kindergarten_district_and_comparison_data(district, comparison)
+    district_data = district_kindergarten_enrollment_data(district)
+    comparison_data = district_kindergarten_enrollment_data(comparison[comparison.keys[0]])
+    {:district => district_data, :comparison => comparison_data}
+  end
+
+  def district_kindergarten_enrollment_data(district)
+    district_repo.find_by_name(district).enrollment.kindergarten_participation_floats
+  end
+
   def find_average(data)
-    years_collected = data.count.to_f
+    num_years_collected = data.count.to_f
     district_average = data.values.reduce(:+)
-    district_average / years_collected
+    district_average / num_years_collected
   end
 
 end
