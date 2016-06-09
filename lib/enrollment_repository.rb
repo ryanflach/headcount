@@ -30,10 +30,9 @@ class EnrollmentRepository
         year = row[:timeframe].to_i
         percent = row[:data]
         grade_level = enrollment_types[header_label_and_file.values[0].keys[num]]
-        enrollment = Enrollment.new({:name => name, grade_level => {year => percent}})
-        existing = find_by_name(enrollment.name)
+        existing = find_by_name(name)
         if existing.nil?
-          add_enrollment(enrollment)
+          add_enrollment(Enrollment.new({:name => name, grade_level => {year => percent}}))
         else
           grade_level_merge(existing, grade_level, year, percent)
         end
