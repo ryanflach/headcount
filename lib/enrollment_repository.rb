@@ -16,6 +16,11 @@ class EnrollmentRepository
     enrollments[district_name.upcase]
   end
 
+  def enrollment_types
+    {:kindergarten => :kindergarten_participation,
+     :high_school_graduation => :high_school_graduation}
+  end
+
   def load_data(header_label_and_file)
     num_files = header_label_and_file.values[0].values.count
     num_files.times do |num|
@@ -24,14 +29,23 @@ class EnrollmentRepository
         name = row[:location]
         year = row[:timeframe].to_i
         percent = row[:data]
-        enrollment = Enrollment.new({:name => name, :kindergarten_participation => {year => percent}})
+        grade_level = enrollment_types[header_label_and_file.values[0].keys[num]]
+        enrollment = Enrollment.new({:name => name, grade_level => {year => percent}})
         existing = find_by_name(enrollment.name)
         if existing.nil?
           add_enrollment(enrollment)
         else
-          existing.kindergarten_participation.merge!({year => percent})
+          grade_level_merge(existing, grade_level, year, percent)
         end
       end
+    end
+  end
+
+  def grade_level_merge(existing, grade_level, year, percent)
+    if grade_level == :kindergarten_participation
+      existing.kindergarten_participation.merge!({year => percent})
+    else
+      existing.high_school_graduation.merge!({year => percent})
     end
   end
 

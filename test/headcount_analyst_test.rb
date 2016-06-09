@@ -54,4 +54,20 @@ class HeadcountAnalystTest < Minitest::Test
     assert_equal expected, ha.kindergarten_district_and_comparison_data('adams county 14', :against => 'colorado')
   end
 
+  def test_if_there_is_a_correlation_between_hs_graduation_and_kindergarten_enrollment
+    dr  = DistrictRepository.new
+    dr.load_data({:enrollment => {:kindergarten => "./test/data/Kinder_enroll_sample.csv",
+                                  :high_school_graduation => "./test/data/HS_grad_sample.csv"}})
+    ha = HeadcountAnalyst.new(dr)
+    assert ha.kindergarten_participation_correlates_with_high_school_graduation(for: 'ACADEMY 20')
+  end
+
+  def test_it_returns_boolean_for_kindergarten_HS_correlation_statewide
+    dr  = DistrictRepository.new
+    dr.load_data({:enrollment => {:kindergarten => "./test/data/Kinder_enroll_sample.csv",
+                                  :high_school_graduation => "./test/data/HS_grad_sample.csv"}})
+    ha = HeadcountAnalyst.new(dr)
+    refute ha.kindergarten_participation_correlates_with_high_school_graduation(for: 'STATEWIDE')
+  end
+
 end
