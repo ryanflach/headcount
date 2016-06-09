@@ -33,11 +33,24 @@ class EnrollmentRepositoryTest < Minitest::Test
     er = EnrollmentRepository.new
     er.load_data({
       :enrollment => {
-        :kindergarten => "./data/Kindergartners in full-day program.csv"
+        :kindergarten => "./test/data/Kinder_enroll_sample.csv"
         }
       })
     enrollment = er.find_by_name("ACADEMY 20")
     assert_equal "ACADEMY 20", enrollment.name
+  end
+
+  def test_it_can_load_data_from_multiple_files_and_store_enrollments
+    er = EnrollmentRepository.new
+    er.load_data({
+      :enrollment => {
+        :kindergarten => "./test/data/Kinder_enroll_sample.csv",
+        :high_school_graduation => "./test/data/HS_grad_sample.csv"
+        }
+      })
+    enrollment = er.find_by_name("ACADEMY 20")
+    expected = [:name, :kindergarten_participation, :high_school_graduation]
+    assert_equal expected, enrollment.enrollment_data.keys
   end
 
 end
