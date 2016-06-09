@@ -52,36 +52,43 @@ class HeadcountAnalyst
     truncate_float(kinder_data / grad_data)
   end
 
-  def kindergarten_participation_correlates_with_high_school_graduation(path_and_district)
-    results = []
-    district = path_and_district.values[0]
-    if path_and_district.keys[0] == :for
+  def kindergarten_participation_correlates_with_high_school_graduation(district_and_path)
+    district = district_and_path.values[0]
+    if district_and_path.keys[0] == :for
       if district.upcase == 'STATEWIDE'
-        district_repo.districts.each do |district|
-          district_object = district[1]
-          col_or_none = (district[0] == 'COLORADO' || (no_kinder_data?(district_object) || no_hs_data?(district_object)))
-          next if col_or_none
-          results << kindergarten_participation_against_high_school_graduation(district[0]).between?(0.6, 1.5)
-        end
+        results = compare_all_schools
       else
         return kindergarten_participation_against_high_school_graduation(district).between?(0.6, 1.5)
       end
     else
-      district.each do |district_name|
-        results << kindergarten_participation_against_high_school_graduation(district_name).between?(0.6, 1.5)
-      end
+      results = compare_across_multiple_districts(district)
     end
-    num_true = results.find_all { |bool| bool == true }.count
-    (num_true / results.count.to_f) > 0.70
+    calculate_correlation(results)
+  end
+
+  def compare_all_schools
+    district_repo.districts.map do |district|
+      next if colorado_or_no_data?(district)
+      kindergarten_participation_against_high_school_graduation(district[0]).between?(0.6, 1.5)
+    end
+  end
+
+  def colorado_or_no_data?(district)
+    (district[0] == 'COLORADO' || (no_kinder_data?(district[1]) || no_hs_data?(district[1])))
+  end
+
+  def compare_across_multiple_districts(districts)
+    districts.map do |district_name|
+      kindergarten_participation_against_high_school_graduation(district_name).between?(0.6, 1.5)
+    end
   end
 
   def no_kinder_data?(district)
-    # district.no_kindergarten_participation?
-    district.enrollment.kindergarten_participation.empty?
+    district.no_kindergarten_participation?
   end
 
   def no_hs_data?(district)
-    district.enrollment.high_school_graduation.empty?
+    district.no_hs_grad_data?
   end
 
   def find_average(data)
