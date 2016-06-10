@@ -16,6 +16,39 @@ class StatewideTestRepository
     tests[district_name.upcase]
   end
 
+  def find_headers(filename)
+    CSV.read(filename, headers: true, header_converters: :symbol).headers
+  end
+
+  def load_data(data_source)
+    data_source.values[0].values.each_with_index do |filename, index|
+      headers = find_headers
+      CSV.foreach(filename, headers: true, header_converters: :symbol) do |row|
+        name, year, percent = row[:location], row[:timeframe], row[:data]
+        existing = find_by_name(name)
+        if headers.include?(:race_ethnicity)
+          data = {:race => row[:race_ethnicity], :name => name,
+                  :subject => data_source.values[0].keys[index],
+                  :year => year, :percent => percent, :existing => existing}
+          merge_test_data(data)
+        else
+          merge_grade_data(existing, name, row[:score], year, percent)
+        end
+      end
+    end
+  end
+
+  def merge_test_data(data)
+    if data[:existing].nil?
+      statewide_data = {:name => data[:name],
+                        data[:subject] => {data[:race] =>
+                        {data[:year] => data[:percent]}}}
+      add_testing_data(StatewideTest.new(statewide_data)
+    elsif data[:existing].test_data.has_key?(data[:subject])
+      data[:existing].test_data[data[:subject]].merge!({data[:race] => })
+  end
+
+
   # def enrollment_types
   #   {:kindergarten => :kindergarten_participation,
   #    :high_school_graduation => :high_school_graduation}
