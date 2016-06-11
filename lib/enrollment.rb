@@ -26,7 +26,7 @@ class Enrollment
     @enrollment_data.has_key?(:high_school_graduation)
   end
 
-  def kindergarten_participation_floats
+  def kinder_participation_floats
     floats_for_all_years(kindergarten_participation)
   end
 

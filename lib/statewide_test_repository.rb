@@ -16,15 +16,6 @@ class StatewideTestRepository
     tests[district_name.upcase]
   end
 
-  def grade_levels
-    [:third_grade, :eighth_grade]
-  end
-
-  def base_data(row)
-    {:name => row[:location], :year => row[:timeframe].to_i,
-     :percent => row[:data].to_f}
-  end
-
   def load_data(data_source)
     data_source.values[0].values.each_with_index do |filename, index|
       CSV.foreach(filename, headers: true, header_converters: :symbol) do |row|
@@ -35,45 +26,75 @@ class StatewideTestRepository
           data[:subject], data[:grade] = row[:score].downcase.to_sym, data_type
           add_grade_data(data, existing)
         else
-          data[:race], data[:subject], = race_to_sym(row[:race_ethnicity]), data_type
+          data[:race] = race_to_sym(row[:race_ethnicity])
+          data[:subject] = data_type
           add_test_results(data, existing)
         end
       end
     end
   end
 
-  def race_to_sym(race)
-    race.to_s.strip.gsub(/[^'A-z']/, '_').downcase.to_sym
-  end
-
   def add_grade_data(data, existing)
-    statewide_data = {:name => data[:name],
-                      data[:grade] =>
-                     {data[:year] => {data[:subject] => data[:percent]}}}
+    state_data = data_format(data, 'grade')
     if existing.nil?
-      add_testing_data(StatewideTest.new(statewide_data))
+      add_testing_data(StatewideTest.new(state_data))
     elsif has_grade_and_year(existing, data[:grade], data[:year])
-      existing.grade_year_data(data[:grade], data[:year]).merge!({data[:subject] => data[:percent]})
+      merge_subject_and_percent(existing, data)
     elsif has_grade(existing, data[:grade])
-      existing.grade_data(data[:grade])[data[:year]] = {data[:subject] => data[:percent]}
+      add_year_data(existing, data)
     else
-      existing.test_data[data[:grade]] = {data[:year] => {data[:subject] => data[:percent]}}
+      existing.test_data[data[:grade]] =
+        {data[:year] => {data[:subject] => data[:percent]}}
     end
   end
 
   def add_test_results(data, existing)
-    statewide_data = {:name => data[:name],
-                      data[:race] =>
-                     {data[:year] => {data[:subject] => data[:percent]}}}
+    state_data = data_format(data, 'test')
     if existing.nil?
-      add_testing_data(StatewideTest.new(statewide_data))
+      add_testing_data(StatewideTest.new(state_data))
     elsif has_race_and_year(existing, data[:race], data[:year])
-      existing.race_year_data(data[:race], data[:year]).merge!({data[:subject] => data[:percent]})
+      existing.race_year_data(data[:race],
+        data[:year]).merge!({data[:subject] => data[:percent]})
     elsif has_race(existing, data[:race])
-      existing.race_data(data[:race])[data[:year]] = {data[:subject] => data[:percent]}
+      existing.race_data(data[:race])[data[:year]] =
+        {data[:subject] => data[:percent]}
     else
-      existing.test_data[data[:race]] = {data[:year] => {data[:subject] => data[:percent]}}
+      existing.test_data[data[:race]] =
+        {data[:year] => {data[:subject] => data[:percent]}}
     end
+  end
+
+  def merge_subject_and_percent(existing, data)
+    existing.grade_year_data(data[:grade],
+      data[:year]).merge!({data[:subject] => data[:percent]})
+  end
+
+  def add_year_data(existing, data)
+    existing.grade_data(data[:grade])[data[:year]] =
+      {data[:subject] => data[:percent]}
+  end
+
+  def race_to_sym(race)
+    race.to_s.strip.gsub(/[^'A-z']/, '_').downcase.to_sym
+  end
+
+  def data_format(data, type)
+    if type == 'grade'
+      {:name => data[:name], data[:grade] =>
+       {data[:year] => {data[:subject] => data[:percent]}}}
+    else
+      {:name => data[:name], data[:race] =>
+       {data[:year] => {data[:subject] => data[:percent]}}}
+    end
+  end
+
+  def grade_levels
+    [:third_grade, :eighth_grade]
+  end
+
+  def base_data(row)
+    {:name => row[:location], :year => row[:timeframe].to_i,
+     :percent => row[:data].to_f}
   end
 
   def has_grade(test_object, grade)

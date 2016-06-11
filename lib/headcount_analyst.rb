@@ -11,29 +11,31 @@ class HeadcountAnalyst
 
   def kindergarten_participation_rate_variation(district, comparison)
     data = kindergarten_district_and_comparison_data(district, comparison)
-    truncate_float(find_average(data[:district]) / find_average(data[:comparison]))
+    truncate_float(
+      find_average(data[:district]) / find_average(data[:comparison]))
   end
 
   def kindergarten_participation_rate_variation_trend(district, comparison)
     data = kindergarten_district_and_comparison_data(district, comparison)
-    trend = data[:district].merge(data[:comparison]) do |year, dist_percent, comp_percent|
-      truncate_float(dist_percent / comp_percent)
+    trend = data[:district].merge(data[:comparison]) do |year, dist, comp|
+      truncate_float(dist / comp)
     end
   end
 
-  def kindergarten_district_and_comparison_data(district, comparison)
+  def kindergarten_district_and_comparison_data(district, comp)
     district_data = district_kindergarten_enrollment_data(district)
-    comparison_data = district_kindergarten_enrollment_data(comparison[comparison.keys[0]])
-    {:district => district_data, :comparison => comparison_data}
+    comp_data = district_kindergarten_enrollment_data(comp[comp.keys[0]])
+    {:district => district_data, :comparison => comp_data}
   end
 
   def district_kindergarten_enrollment_data(district)
-    district_repo.find_by_name(district).enrollment.kindergarten_participation_floats
+    district_repo.find_by_name(district).enrollment.kinder_participation_floats
   end
 
   def graduation_year_rate_variation(district, comparison)
     data = graduation_district_comparison_data(district, comparison)
-    truncate_float(find_average(data[:district]) / find_average(data[:comparison]))
+    truncate_float(
+      find_average(data[:district]) / find_average(data[:comparison]))
   end
 
   def graduation_district_comparison_data(district, comparison)
@@ -46,15 +48,16 @@ class HeadcountAnalyst
     district_repo.find_by_name(district).enrollment.graduation_year_floats
   end
 
-  def kindergarten_participation_against_high_school_graduation(district)
-    kinder_data = kindergarten_participation_rate_variation(district, :against => "COLORADO")
-    grad_data = graduation_year_rate_variation(district, :against => "COLORADO")
-    truncate_float(kinder_data / grad_data)
+  def kindergarten_participation_against_high_school_graduation(dist)
+    kinder =
+      kindergarten_participation_rate_variation(dist, :against => "COLORADO")
+    grad = graduation_year_rate_variation(dist, :against => "COLORADO")
+    truncate_float(kinder / grad)
   end
 
-  def kindergarten_participation_correlates_with_high_school_graduation(district_and_path)
-    district = district_and_path.values[0]
-    if district_and_path.keys[0] == :for
+  def kindergarten_participation_correlates_with_high_school_graduation(comp)
+    district = comp.values[0]
+    if comp.keys[0] == :for
       if district.upcase == 'STATEWIDE'
         results = compare_all_schools
       else
