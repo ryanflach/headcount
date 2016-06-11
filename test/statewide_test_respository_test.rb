@@ -190,8 +190,8 @@ class StatewideTestRepositoryTest < Minitest::Test
     expected_grade_data = {2010 => {:reading => 0.0}, 2008 => {:writing => 0.0}}
     assert_equal expected_grade_data, str.find_by_name('platte valley re-3').grade_data(:third_grade)
 
-    expected_race_data = {2011 => {:math => 0.8169}, 2012 => {:math => 0.8182}, 2013 => {:math => 0.8053}, 2014 => {:math => 0.8}}
-    assert_equal expected_race_data, str.find_by_name('academy 20').race_data(:asian)
+    expected_race_data = {2011 => {:math => 0.680}}
+    assert_equal expected_race_data, str.find_by_name('platte valley re-3').race_data(:all_students)
   end
 
 end
