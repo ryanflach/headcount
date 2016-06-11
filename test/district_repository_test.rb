@@ -50,4 +50,26 @@ class DistrictRepositoryTest < Minitest::Test
     assert_equal 181, dr.districts.keys.uniq.count
   end
 
+  def test_it_can_load_data_from_multiple_files_and_store_unique_Districts
+    dr = DistrictRepository.new
+    dr.load_data({:enrollment => {:kindergarten => "./test/data/Kinder_enroll_sample.csv"},
+                  :statewide_testing => {:math => "./test/data/Avg_prof_CSAP_TCAP_by_race_Math.csv"}})
+    assert_equal 20, dr.districts.count
+    assert_equal 20, dr.districts.keys.uniq.count
+  end
+
+  def test_it_can_find_enrollment_data_for_a_district_in_its_repository
+    dr = DistrictRepository.new
+    dr.load_data({:enrollment => {:kindergarten => "./test/data/Kinder_enroll_sample.csv"},
+                  :statewide_testing => {:math => "./test/data/Avg_prof_CSAP_TCAP_by_race_Math.csv"}})
+    assert dr.find_enrollment("academy 20")
+  end
+
+  def test_it_can_find_statewide_testing_data_for_a_district_in_its_repository
+    dr = DistrictRepository.new
+    dr.load_data({:enrollment => {:kindergarten => "./test/data/Kinder_enroll_sample.csv"},
+                  :statewide_testing => {:math => "./test/data/Avg_prof_CSAP_TCAP_by_race_Math.csv"}})
+    assert dr.find_test_data("academy 20")
+  end
+
 end
