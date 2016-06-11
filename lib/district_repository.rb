@@ -1,5 +1,6 @@
 require_relative 'district'
 require_relative 'enrollment_repository'
+require_relative 'statewide_test_repository'
 require 'csv'
 
 class DistrictRepository
@@ -8,6 +9,7 @@ class DistrictRepository
   def initialize(districts = {})
     @districts = districts
     @enrollment = EnrollmentRepository.new
+    @statewide_testing = StatewideTestRepository.new
   end
 
   def add_district(district)
@@ -23,14 +25,20 @@ class DistrictRepository
     matches.map { |match| districts[match] }
   end
 
-  def load_data(header_label_and_file)
-    repo = check_repository_type(header_label_and_file.keys.first)
-    repo.load_data(header_label_and_file)
-    filename = header_label_and_file.values[0].values[0]
-    CSV.foreach(filename, headers: true, header_converters: :symbol) do |row|
-      name = row[:location]
-      district = District.new({:name => name}, self)
-      add_district(district)
+  def load_data(data_source)
+    data_source.keys.each do |repo_type|
+      repo = check_repository_type(repo_type)
+      repo.load_data({repo_type => data_source[repo_type]})
+    end
+    data_source.values.each do |repository|
+      repository.each do |subject, file|
+        filename = file
+        CSV.foreach(filename, headers: true, header_converters: :symbol) do |row|
+          name = row[:location]
+          district = District.new({:name => name}, self)
+          add_district(district)
+        end
+      end
     end
   end
 
@@ -39,11 +47,15 @@ class DistrictRepository
   end
 
   def possible_repos
-    {:enrollment => @enrollment}
+    {:enrollment => @enrollment, :statewide_testing => @statewide_testing}
   end
 
   def find_enrollment(name)
     @enrollment.find_by_name(name)
+  end
+
+  def find_test_data(name)
+    @statewide_testing.find_by_name(name)
   end
 
 end

@@ -42,10 +42,14 @@ class StatewideTestRepositoryTest < Minitest::Test
     st = StatewideTest.new(:name => "Colorado")
     str.add_testing_data(st)
 
-    refute str.has_year(st, :third_grade, 2010)
+    refute str.has_grade_year(st, :third_grade, 2010)
+    refute str.has_race_year(st, :asian, 2010)
 
     st.test_data[:third_grade] = {2010 => {:math => 0.333}}
-    assert str.has_year(st, :third_grade, 2010)
+    st.test_data[:asian] = {2010 => {:math => 0.333}}
+
+    assert str.has_grade_year(st, :third_grade, 2010)
+    assert str.has_race_year(st, :asian, 2010)
   end
 
   def test_it_can_check_if_a_statwide_test_object_has_grade_and_given_year

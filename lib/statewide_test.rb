@@ -1,4 +1,5 @@
 require_relative 'calculations'
+require_relative 'errors'
 
 class StatewideTest
   include Calculations
@@ -21,96 +22,65 @@ class StatewideTest
     test_data[race]
   end
 
-  def year_data(race = nil, grade = nil, year)
+  def grade_levels
+    {3 => :third_grade, 8 => :eighth_grade}
+  end
+
+  def grade_year_data(grade, year)
     grade_data(grade)[year] unless grade_data(grade).nil? || grade.nil?
+  end
+
+  def race_year_data(race, year)
     race_data(race)[year] unless race_data(race).nil? || race.nil?
   end
 
   def proficient_by_grade(grade)
-    #grade must be 3 or 8, raise UnknownDataError else
-    #returns a hash grouped by year referencing percentages (truncated)
+    raise UnknownDataError unless grade == 3 || grade == 8
+    sort_and_truncate(grade_data(grade_levels[grade]))
+  end
+
+  def sort_and_truncate(data)
+    data.map do |year_or_race, subjects|
+      sorted_subjects = subjects.map do |subject, percent|
+        [subject, truncate_float(percent)]
+      end.sort_by {|subject, percent| subject }.to_h
+      [year_or_race, sorted_subjects]
+    end.sort_by {|year_or_race, subject| year_or_race}.to_h
+  end
+
+  def races
+    {:two_or_more => :two_or_more, :all_students => :all_students,
+     :asian => :asian, :black => :black,
+     :pacific_islander => :hawaiian_pacific_islander,
+     :hispanic => :hispanic, :native_american => :native_american,
+     :white => :white}
+  end
+
+  def subjects
+    [:math, :reading, :writing]
   end
 
   def proficient_by_race_or_ethnicity(race)
-    # race as a symbol from the following set: [:asian, :black, :pacific_islander, :hispanic, :native_american, :two_or_more, :white]
-    # A call to this method with an unknown race should raise an UnknownRaceError.
-    # The method returns a hash grouped by race referencing percentages by subject all as truncated three digit floats.
+    raise UnknownRaceError unless races.has_key?(race)
+    sort_and_truncate(race_data(races[race]))
   end
 
-  def proficient_for_subject_grade_in_year(subject, grade, year)
-    # This method takes three parameters:
-    # subject as a symbol from the following set: [:math, :reading, :writing]
-    # grade as an integer from the following set: [3, 8]
-    # year as an integer for any year reported in the data
-    # A call to this method with any invalid parameter (like subject of :science) should raise an UnknownDataError.
-    # The method returns a truncated three-digit floating point number representing a percentage.
+  def data_exists(subject, grade_or_race, year)
+    subjects.include?(subject) &&
+    (grade_data(grade_levels[grade_or_race]) ||
+     race_data(races[grade_or_race])) &&
+    (race_year_data(races[grade_or_race], year) ||
+     grade_year_data(grade_levels[grade_or_race], year))
+  end
+
+  def proficient_for_subject_by_grade_in_year(subject, grade, year)
+    raise UnknownDataError unless data_exists(subject, grade, year)
+    proficient_by_grade(grade)[year][subject]
   end
 
   def proficient_for_subject_by_race_in_year(subject, race, year)
-    # This method take three parameters:
-    # subject as a symbol from the following set: [:math, :reading, :writing]
-    # race as a symbol from the following set: [:asian, :black, :pacific_islander, :hispanic, :native_american, :two_or_more, :white]
-    # year as an integer for any year reported in the data
-    # A call to this method with any invalid parameter (like subject of :history) should raise an UnknownDataError.
-    # The method returns a truncated three-digit floating point number representing a percentage.
+    raise UnknownDataError unless data_exists(subject, race, year)
+    proficient_by_race_or_ethnicity(race)[year][subject]
   end
-
-
-
-  # def kindergarten_participation
-  #   @test_data[:kindergarten_participation]
-  # end
-  #
-  # def high_school_graduation
-  #   return @test_data[:high_school_graduation] if hs_grad_data_existing?
-  #   @test_data[:high_school_graduation] = {}
-  # end
-  #
-  # def hs_grad_data_existing?
-  #   @test_data.has_key?(:high_school_graduation)
-  # end
-  #
-  # def kindergarten_participation_floats
-  #   floats_for_all_years(kindergarten_participation)
-  # end
-  #
-  # def graduation_year_floats
-  #   floats_for_all_years(high_school_graduation)
-  # end
-  #
-  # def floats_for_all_years(grade_level)
-  #   grade_level.map do |key, value|
-  #     [key, value.to_f]
-  #   end.sort_by {|year, percent| year}.to_h
-  # end
-  #
-  # def data_by_year(grade_level)
-  #   @test_data[grade_level].map do |year, percent|
-  #     [year, truncate_float(percent.to_f)]
-  #   end.sort_by {|year, percent| year}.to_h
-  # end
-  #
-  # def data_in_year(query_year, grade_level)
-  #   data = @test_data[grade_level].find do |year, percent|
-  #     year == query_year
-  #   end
-  #   truncate_float(data[1].to_f) unless data.nil?
-  # end
-  #
-  # def kindergarten_participation_by_year
-  #   data_by_year(:kindergarten_participation)
-  # end
-  #
-  # def kindergarten_participation_in_year(query_year)
-  #   data_in_year(query_year, :kindergarten_participation)
-  # end
-  #
-  # def graduation_rate_by_year
-  #   data_by_year(:high_school_graduation)
-  # end
-  #
-  # def graduation_rate_in_year(query_year)
-  #   data_in_year(query_year, :high_school_graduation)
-  # end
 
 end

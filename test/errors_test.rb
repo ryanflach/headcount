@@ -2,12 +2,10 @@ require_relative 'test_helper'
 require_relative '../lib/errors'
 
 class ErrorsTest < Minitest::Test
-  include Errors
 
   def test_it_has_an_unknown_data_error
-    unknown_data = UnknownDataError.new
     assert_raises(UnknownDataError) do
-      raise unknown_data
+      raise UnknownDataError
     end
   end
 

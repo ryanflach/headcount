@@ -17,7 +17,7 @@ class StatewideTestRepository
   end
 
   def grade_levels
-    [:third_grade, :eigth_grade]
+    [:third_grade, :eighth_grade]
   end
 
   def base_data(row)
@@ -43,7 +43,7 @@ class StatewideTestRepository
   end
 
   def race_to_sym(race)
-    race.downcase.strip.gsub(/[^'a-z']/, '_').to_sym
+    race.to_s.strip.gsub(/[^'A-z']/, '_').downcase.to_sym
   end
 
   def add_grade_data(data, existing)
@@ -53,7 +53,7 @@ class StatewideTestRepository
     if existing.nil?
       add_testing_data(StatewideTest.new(statewide_data))
     elsif has_grade_and_year(existing, data[:grade], data[:year])
-      existing.year_data(data[:grade], data[:year]).merge!({data[:subject] => data[:percent]})
+      existing.grade_year_data(data[:grade], data[:year]).merge!({data[:subject] => data[:percent]})
     elsif has_grade(existing, data[:grade])
       existing.grade_data(data[:grade])[data[:year]] = {data[:subject] => data[:percent]}
     else
@@ -68,7 +68,7 @@ class StatewideTestRepository
     if existing.nil?
       add_testing_data(StatewideTest.new(statewide_data))
     elsif has_race_and_year(existing, data[:race], data[:year])
-      existing.year_data(data[:race], data[:year]).merge!({data[:subject] => data[:percent]})
+      existing.race_year_data(data[:race], data[:year]).merge!({data[:subject] => data[:percent]})
     elsif has_race(existing, data[:race])
       existing.race_data(data[:race])[data[:year]] = {data[:subject] => data[:percent]}
     else
@@ -80,12 +80,16 @@ class StatewideTestRepository
     test_object.grade_data(grade)
   end
 
-  def has_year(test_object, grade_or_race, year)
-    test_object.year_data(grade_or_race, year)
+  def has_grade_year(test_object, grade, year)
+    test_object.grade_year_data(grade, year)
+  end
+
+  def has_race_year(test_object, race, year)
+    test_object.race_year_data(race, year)
   end
 
   def has_grade_and_year(object, grade, year)
-    has_grade(object, grade) && has_year(object, grade, year)
+    has_grade(object, grade) && has_grade_year(object, grade, year)
   end
 
   def has_race(test_object, race)
@@ -93,7 +97,7 @@ class StatewideTestRepository
   end
 
   def has_race_and_year(object, race, year)
-    has_race(object, race) && has_year(object, race, year)
+    has_race(object, race) && has_race_year(object, race, year)
   end
 
 end

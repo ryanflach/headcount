@@ -21,11 +21,11 @@ class EnrollmentRepository
      :high_school_graduation => :high_school_graduation}
   end
 
-  def load_data(header_label_and_file)
-    header_label_and_file.values[0].values.each_with_index do |filename, index|
+  def load_data(data_source)
+    data_source.values[0].values.each_with_index do |filename, index|
       CSV.foreach(filename, headers: true, header_converters: :symbol) do |row|
         name, year, percent = row[:location], row[:timeframe].to_i, row[:data]
-        grade_level = enrollment_types[header_label_and_file.values[0].keys[index]]
+        grade_level = enrollment_types[data_source.values[0].keys[index]]
         existing = find_by_name(name)
         if existing.nil?
           add_enrollment(Enrollment.new({:name => name, grade_level => {year => percent}}))
