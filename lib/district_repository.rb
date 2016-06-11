@@ -32,8 +32,7 @@ class DistrictRepository
     end
     data_source.values.each do |repository|
       repository.each do |subject, file|
-        filename = file
-        CSV.foreach(filename, headers: true, header_converters: :symbol) do |row|
+        CSV.foreach(file, headers: true, header_converters: :symbol) do |row|
           name = row[:location]
           district = District.new({:name => name}, self)
           add_district(district)
