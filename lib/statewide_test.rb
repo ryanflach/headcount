@@ -75,12 +75,14 @@ class StatewideTest
 
   def proficient_for_subject_by_grade_in_year(subject, grade, year)
     raise UnknownDataError unless data_exists(subject, grade, year)
-    proficient_by_grade(grade)[year][subject]
+    result = proficient_by_grade(grade)[year][subject]
+    result == 0.0 ? "N/A" : result
   end
 
   def proficient_for_subject_by_race_in_year(subject, race, year)
     raise UnknownDataError unless data_exists(subject, race, year)
-    proficient_by_race_or_ethnicity(race)[year][subject]
+    result = proficient_by_race_or_ethnicity(race)[year][subject]
+    result == 0.0 ? "N/A" : result
   end
 
 end
