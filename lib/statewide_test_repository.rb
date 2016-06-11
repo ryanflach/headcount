@@ -31,16 +31,19 @@ class StatewideTestRepository
         name, year, percent = row[:location], row[:timeframe], row[:data]
         data_type = data_source.values[0].keys[index]
         existing = find_by_name(name)
-        # binding.pry
         if grade_levels.include?(data_type)
           data[:subject], data[:grade] = row[:score].downcase.to_sym, data_type
           add_grade_data(data, existing)
         else
-          data[:race], data[:subject], = row[:race_ethnicity].downcase.to_sym, data_type
+          data[:race], data[:subject], = race_to_sym(row[:race_ethnicity]), data_type
           add_test_results(data, existing)
         end
       end
     end
+  end
+
+  def race_to_sym(race)
+    race.downcase.strip.gsub(/[^'A-z']/, '_').to_sym
   end
 
   def add_grade_data(data, existing)
@@ -51,8 +54,10 @@ class StatewideTestRepository
       add_testing_data(StatewideTest.new(statewide_data))
     elsif has_grade_and_year(existing, data[:grade], data[:year])
       existing.year_data(data[:grade], data[:year]).merge!({data[:subject] => data[:percent]})
+    elsif has_grade(existing, data[:grade])
+      existing.grade_data(data[:grade])[data[:year]] = {data[:subject] => data[:percent]}
     else
-      existing.grade_data(data[:grade]).merge!({data[:year] => {data[:subject] => data[:percent]}})
+      existing.test_data[data[:grade]] = {data[:year] => {data[:subject] => data[:percent]}}
     end
   end
 
@@ -61,14 +66,13 @@ class StatewideTestRepository
                       data[:race] =>
                      {data[:year] => {data[:subject] => data[:percent]}}}
     if existing.nil?
-      # binding.pry
       add_testing_data(StatewideTest.new(statewide_data))
     elsif has_race_and_year(existing, data[:race], data[:year])
-      # binding.pry
       existing.year_data(data[:race], data[:year]).merge!({data[:subject] => data[:percent]})
+    elsif has_race(existing, data[:race])
+      existing.race_data(data[:race])[data[:year]] = {data[:subject] => data[:percent]}
     else
-      # binding.pry
-      existing.race_data(data[:race]).merge!({data[:year] => {data[:subject] => data[:percent]}})
+      existing.test_data[data[:race]] = {data[:year] => {data[:subject] => data[:percent]}}
     end
   end
 
