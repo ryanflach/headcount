@@ -11,7 +11,7 @@ class StatewideTest
   end
 
   def name
-    @test_data[:name].upcase
+    test_data[:name].upcase
   end
 
   def grade_data(grade)
