@@ -18,13 +18,13 @@ class District
   end
 
   def no_kindergarten_participation?
-    enrollment.kindergarten_participation.empty? ||
-    enrollment.kindergarten_participation.nil?
+    enrollment.kindergarten_participation.nil? ||
+    enrollment.kindergarten_participation.empty?
   end
 
   def no_hs_grad_data?
-    enrollment.high_school_graduation.empty? ||
-    enrollment.high_school_graduation.nil?
+    enrollment.high_school_graduation.nil? ||
+    enrollment.high_school_graduation.empty?
   end
 
 end

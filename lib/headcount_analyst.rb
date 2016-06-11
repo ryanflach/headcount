@@ -74,7 +74,8 @@ class HeadcountAnalyst
   end
 
   def colorado_or_no_data?(district)
-    (district[0] == 'COLORADO' || (no_kinder_data?(district[1]) || no_hs_data?(district[1])))
+    (district[0] == 'COLORADO' ||
+    (no_kinder_data?(district[1]) || no_hs_data?(district[1])))
   end
 
   def compare_across_multiple_districts(districts)
