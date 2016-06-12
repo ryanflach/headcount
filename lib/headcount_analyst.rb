@@ -101,6 +101,4 @@ class HeadcountAnalyst
     district_average / num_years_collected
   end
 
-  
-
 end
