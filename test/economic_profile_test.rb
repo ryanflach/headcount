@@ -31,4 +31,154 @@ class EconomicProfileTest < Minitest::Test
     assert_equal expected, ep.title_i
   end
 
+  def test_it_raises_an_unknown_data_error_for_median_income_in_year_if_year_is_not_present
+    data = {:median_household_income => {[2005, 2009] => 50000, [2008, 2014] => 60000},
+        :children_in_poverty => {2012 => 0.1845},
+        :free_or_reduced_price_lunch => {2014 => {:percentage => 0.023, :total => 100}},
+        :title_i => {2015 => 0.543},
+        :name => "ACADEMY 20"
+       }
+    ep = EconomicProfile.new(data)
+
+    assert_raises(UnknownDataError) do
+      ep.median_household_income_in_year(2004)
+    end
+  end
+
+  def test_it_can_find_the_average_median_household_income_in_a_given_year
+    data = {:median_household_income => {[2005, 2009] => 50000, [2008, 2014] => 60000},
+        :children_in_poverty => {2012 => 0.1845},
+        :free_or_reduced_price_lunch => {2014 => {:percentage => 0.023, :total => 100}},
+        :title_i => {2015 => 0.543},
+        :name => "ACADEMY 20"
+       }
+    ep = EconomicProfile.new(data)
+
+    assert_equal 55000, ep.median_household_income_in_year(2008)
+  end
+
+  def test_it_can_find_the_median_household_income_average_across_all_years
+    data = {:median_household_income => {[2005, 2009] => 50000, [2008, 2014] => 60000},
+        :children_in_poverty => {2012 => 0.1845},
+        :free_or_reduced_price_lunch => {2014 => {:percentage => 0.023, :total => 100}},
+        :title_i => {2015 => 0.543},
+        :name => "ACADEMY 20"
+       }
+    ep = EconomicProfile.new(data)
+
+    assert_equal 55000, ep.median_household_income_average
+  end
+
+  def test_it_raises_an_unknown_data_error_for_children_in_poverty_in_a_given_year_if_no_data_exists
+    skip
+    data = {:median_household_income => {[2005, 2009] => 50000, [2008, 2014] => 60000},
+        :children_in_poverty => {2012 => 0.1845},
+        :free_or_reduced_price_lunch => {2014 => {:percentage => 0.023, :total => 100}},
+        :title_i => {2015 => 0.543},
+        :name => "ACADEMY 20"
+       }
+    ep = EconomicProfile.new(data)
+
+    assert_raises(UnknownDataError) do
+      ep.children_in_poverty_in_year(2010)
+    end
+  end
+
+  def test_it_returns_a_truncated_float_for_children_in_poverty_in_a_given_year
+    skip
+    data = {:median_household_income => {[2005, 2009] => 50000, [2008, 2014] => 60000},
+        :children_in_poverty => {2012 => 0.1845},
+        :free_or_reduced_price_lunch => {2014 => {:percentage => 0.023, :total => 100}},
+        :title_i => {2015 => 0.543},
+        :name => "ACADEMY 20"
+       }
+    ep = EconomicProfile.new(data)
+
+    assert_equal 0.184, ep.children_in_poverty_in_year(2012)
+  end
+
+  def test_it_raises_an_unknown_data_error_free_or_reduced_price_lunch_percentage_in_a_given_year_if_no_data_exists
+    skip
+    data = {:median_household_income => {[2005, 2009] => 50000, [2008, 2014] => 60000},
+        :children_in_poverty => {2012 => 0.1845},
+        :free_or_reduced_price_lunch => {2014 => {:percentage => 0.023, :total => 100}},
+        :title_i => {2015 => 0.543},
+        :name => "ACADEMY 20"
+       }
+    ep = EconomicProfile.new(data)
+
+    assert_raises(UnknownDataError) do
+      ep.free_or_reduced_price_lunch_percentage_in_year(2010)
+    end
+  end
+
+  def test_it_returns_a_truncated_float_for_free_or_reduced_price_lunch_percentage_in_a_given_year
+    skip
+    data = {:median_household_income => {[2005, 2009] => 50000, [2008, 2014] => 60000},
+        :children_in_poverty => {2012 => 0.1845},
+        :free_or_reduced_price_lunch => {2014 => {:percentage => 0.0234, :total => 100}},
+        :title_i => {2015 => 0.543},
+        :name => "ACADEMY 20"
+       }
+    ep = EconomicProfile.new(data)
+
+    assert_equal 0.023, ep.free_or_reduced_price_lunch_percentage_in_year(2014)
+  end
+
+  def test_it_raises_an_unknown_data_error_for_free_or_reduced_price_lunch_number_in_a_given_year_if_no_data
+    skip
+    data = {:median_household_income => {[2005, 2009] => 50000, [2008, 2014] => 60000},
+        :children_in_poverty => {2012 => 0.1845},
+        :free_or_reduced_price_lunch => {2014 => {:percentage => 0.023, :total => 100}},
+        :title_i => {2015 => 0.543},
+        :name => "ACADEMY 20"
+       }
+    ep = EconomicProfile.new(data)
+
+    assert_raises(UnknownDataError) do
+      ep.free_or_reduced_price_lunch_number_in_year(2012)
+    end
+  end
+
+  def test_it_returns_an_int_for_number_of_children_receiving_free_or_reduced_price_lunch_in_a_given_year
+    skip
+    data = {:median_household_income => {[2005, 2009] => 50000, [2008, 2014] => 60000},
+        :children_in_poverty => {2012 => 0.1845},
+        :free_or_reduced_price_lunch => {2014 => {:percentage => 0.0234, :total => 100}},
+        :title_i => {2015 => 0.543},
+        :name => "ACADEMY 20"
+       }
+    ep = EconomicProfile.new(data)
+
+    assert_equal 100, ep.free_or_reduced_price_lunch_number_in_year(2014)
+  end
+
+  def test_it_raises_an_unknown_data_error_for_title_i_in_year_if_no_data_exists
+    skip
+    data = {:median_household_income => {[2005, 2009] => 50000, [2008, 2014] => 60000},
+        :children_in_poverty => {2012 => 0.1845},
+        :free_or_reduced_price_lunch => {2014 => {:percentage => 0.023, :total => 100}},
+        :title_i => {2015 => 0.543},
+        :name => "ACADEMY 20"
+       }
+    ep = EconomicProfile.new(data)
+
+    assert_raises(UnknownDataError) do
+      ep.title_i_in_year(2012)
+    end
+  end
+
+  def test_it_returns_a_truncated_float_for_title_i_in_a_given_year
+    skip
+    data = {:median_household_income => {[2005, 2009] => 50000, [2008, 2014] => 60000},
+        :children_in_poverty => {2012 => 0.1845},
+        :free_or_reduced_price_lunch => {2014 => {:percentage => 0.0234, :total => 100}},
+        :title_i => {2015 => 0.5436},
+        :name => "ACADEMY 20"
+       }
+    ep = EconomicProfile.new(data)
+
+    assert_equal 0.543, ep.title_i_in_year(2015)
+  end
+
 end
