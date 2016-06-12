@@ -183,7 +183,7 @@ class EconomicProfileRepositoryTest < Minitest::Test
     assert_equal expected, epr.find_by_name('academy 20').title_i
   end
 
-  def test_it_can_load_and_store_median_income_data
+  def test_it_can_load_and_store_median_income_data_from_a_file
     epr = EconomicProfileRepository.new
     epr.load_data({:economic_profile => {
                       :median_household_income => "./test/data/Median_household_income.csv"}})
@@ -191,12 +191,52 @@ class EconomicProfileRepositoryTest < Minitest::Test
     assert_equal expected, epr.find_by_name('colorado').median_household_income
   end
 
-  def test_it_can_load_and_store_poverty_data
+  def test_it_can_load_and_store_poverty_data_from_a_file
     epr = EconomicProfileRepository.new
     epr.load_data({:economic_profile => {
-                      :median_household_income => "./test/data/Median_household_income.csv"}})
-    expected = {[2005, 2009] => 56222, [2006, 2010] => 56456, [2008, 2012] => 58244, [2007, 2011] => 57685, [2009, 2013] => 58433}
-    assert_equal expected, epr.find_by_name('colorado').median_household_income
+                      :children_in_poverty => "./test/data/Children_in_poverty.csv"}})
+    expected = {1995=>0.219, 1997=>0.252, 1999=>0.19, 2000=>0.196, 2001=>0.184,
+                2002=>0.203, 2003=>0.208, 2004=>0.204, 2005=>0.195, 2006=>0.206,
+                2007=>0.247, 2008=>0.22533, 2009=>0.24, 2010=>0.23185, 2011=>0.312,
+                2012=>0.328, 2013=>0.264}
+    assert_equal expected, epr.find_by_name('adams county 14').children_in_poverty
   end
 
+  def test_it_can_load_and_store_free_or_reduced_price_lunch_data_from_a_file
+    epr = EconomicProfileRepository.new
+    epr.load_data({:economic_profile => {
+                      :free_or_reduced_price_lunch => "./test/data/Free_reduced_lunch.csv"}})
+    expected = {2014 => {:total => 485, :percentage => 0.58859}}
+    assert_equal expected, epr.find_by_name('yuma school district 1').free_or_reduced_price_lunch
+  end
+
+  def test_it_can_load_and_store_title_i_data_from_a_file
+    epr = EconomicProfileRepository.new
+    epr.load_data({:economic_profile => {
+                      :title_i => "./test/data/Title_i_students.csv"}})
+    expected = {2009 => 0.216, 2011 => 0.224, 2012 => 0.22907, 2013 => 0.23178, 2014 => 0.23556}
+    assert_equal expected, epr.find_by_name('colorado').title_i
+  end
+
+  def test_it_can_load_different_economic_data_from_multiple_files
+    epr = EconomicProfileRepository.new
+    epr.load_data({:economic_profile => {
+                      :median_household_income => "./test/data/Median_household_income.csv",
+                      :children_in_poverty => "./test/data/Children_in_poverty.csv",
+                      :free_or_reduced_price_lunch => "./test/data/Free_reduced_lunch.csv",
+                      :title_i => "./test/data/Title_i_students.csv"}})
+
+    expected_median = {[2005, 2009] => 56222, [2006, 2010] => 56456, [2008, 2012] => 58244, [2007, 2011] => 57685, [2009, 2013] => 58433}
+    expected_poverty = {1995=>0.219, 1997=>0.252, 1999=>0.19, 2000=>0.196, 2001=>0.184,
+                        2002=>0.203, 2003=>0.208, 2004=>0.204, 2005=>0.195, 2006=>0.206,
+                        2007=>0.247, 2008=>0.22533, 2009=>0.24, 2010=>0.23185, 2011=>0.312,
+                        2012=>0.328, 2013=>0.264}
+    expected_lunch = {2014 => {:total => 485, :percentage => 0.58859}}
+    expected_title_i = {2009 => 0.216, 2011 => 0.224, 2012 => 0.22907, 2013 => 0.23178, 2014 => 0.23556}
+
+    assert_equal expected_median, epr.find_by_name('colorado').median_household_income
+    assert_equal expected_poverty, epr.find_by_name('adams county 14').children_in_poverty
+    assert_equal expected_lunch, epr.find_by_name('yuma school district 1').free_or_reduced_price_lunch
+    assert_equal expected_title_i, epr.find_by_name('colorado').title_i
+  end
 end
