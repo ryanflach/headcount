@@ -69,7 +69,17 @@ class DistrictRepositoryTest < Minitest::Test
     dr = DistrictRepository.new
     dr.load_data({:enrollment => {:kindergarten => "./test/data/Kinder_enroll_sample.csv"},
                   :statewide_testing => {:math => "./test/data/Avg_prof_CSAP_TCAP_by_race_Math.csv"}})
+
     assert dr.find_test_data("academy 20")
+  end
+
+  def test_it_can_find_economic_profile_data_for_a_district_in_its_repository
+    skip
+    dr = DistrictRepository.new
+    dr.load_data({:enrollment => {:kindergarten => "./test/data/Kinder_enroll_sample.csv"},
+                  :statewide_testing => {:math => "./test/data/Avg_prof_CSAP_TCAP_by_race_Math.csv"},
+                  :economic_profile => {:title_i => "./test/data/Title_I_students.csv"}})
+    assert dr.find_econ_data("academy 20")
   end
 
 end

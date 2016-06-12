@@ -36,4 +36,24 @@ class ErrorsTest < Minitest::Test
     assert_equal "Data unavailable", unknown_race.message
   end
 
+  def test_it_can_raise_an_insufficient_information_error
+    skip
+    insufficient_info = InsufficientInformationError.new
+    assert_raises(InsufficientInformationError) do
+      raise insufficient_info
+    end
+  end
+
+  def test_insufficient_information_error_can_have_a_custom_message
+    skip
+    insufficient_info = InsufficientInformationError.new("Nope")
+    assert_equal "Nope", insufficient_info.message
+  end
+
+  def test_insufficient_information_error_has_a_default_message
+    skip
+    insufficient_info = InsufficientInformationError.new
+    assert_equal "Data unavailable", insufficient_info.message
+  end
+
 end

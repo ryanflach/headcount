@@ -17,6 +17,10 @@ class District
     @district_repo.find_test_data(name)
   end
 
+  def economic_profile
+    @district_repo.find_econ_data(name)
+  end
+
   def no_kindergarten_participation?
     enrollment.kindergarten_participation.nil? ||
     enrollment.kindergarten_participation.empty?

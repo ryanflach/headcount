@@ -1,6 +1,9 @@
+require_relative 'calculations'
 require_relative 'errors'
 
 class EconomicProfile
+  include Calculations
+
   attr_accessor :econ_data
 
   def initialize(econ_data)
@@ -43,19 +46,23 @@ class EconomicProfile
   end
 
   def children_in_poverty_in_year(year)
-    
+    raise UnknownRaceError unless children_in_poverty.has_key?(year)
+    truncate_float(children_in_poverty[year])
   end
 
   def free_or_reduced_price_lunch_percentage_in_year(year)
-
+    raise UnknownRaceError unless free_or_reduced_price_lunch.has_key?(year)
+    truncate_float(free_or_reduced_price_lunch[year][:percentage])
   end
 
-  def free_or_reduce_price_lunch_number_in_year(year)
-
+  def free_or_reduced_price_lunch_number_in_year(year)
+    raise UnknownRaceError unless free_or_reduced_price_lunch.has_key?(year)
+    free_or_reduced_price_lunch[year][:total]
   end
 
   def title_i_in_year(year)
-
+    raise UnknownRaceError unless title_i.has_key?(year)
+    truncate_float(title_i[year])
   end
 
 end
