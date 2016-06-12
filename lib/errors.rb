@@ -8,3 +8,11 @@ end
 
 class UnknownRaceError < UnknownDataError
 end
+
+class InsufficientInformationError
+
+  def initialize(message = "A grade must be provided to answer this question")
+    @message = message
+  end
+
+end

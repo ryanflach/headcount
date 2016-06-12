@@ -1,6 +1,7 @@
 require_relative 'district'
 require_relative 'enrollment_repository'
 require_relative 'statewide_test_repository'
+require_relative 'economic_profile_repository'
 require 'csv'
 
 class DistrictRepository
@@ -10,6 +11,7 @@ class DistrictRepository
     @districts = districts
     @enrollment = EnrollmentRepository.new
     @statewide_testing = StatewideTestRepository.new
+    @economic_profile = EconomicProfileRepository.new
   end
 
   def add_district(district)
@@ -46,7 +48,9 @@ class DistrictRepository
   end
 
   def possible_repos
-    {:enrollment => @enrollment, :statewide_testing => @statewide_testing}
+    {:enrollment => @enrollment,
+     :statewide_testing => @statewide_testing,
+     :economic_profile => @economic_profile}
   end
 
   def find_enrollment(name)
@@ -55,6 +59,10 @@ class DistrictRepository
 
   def find_test_data(name)
     @statewide_testing.find_by_name(name)
+  end
+
+  def find_econ_data(name)
+    @economic_profile.find_by_name(name)
   end
 
 end
