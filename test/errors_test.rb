@@ -20,9 +20,8 @@ class ErrorsTest < Minitest::Test
   end
 
   def test_it_has_an_unknown_race_error
-    unknown_race = UnknownRaceError.new
     assert_raises(UnknownRaceError) do
-      raise unknown_race
+      raise UnknownRaceError
     end
   end
 
@@ -37,23 +36,19 @@ class ErrorsTest < Minitest::Test
   end
 
   def test_it_can_raise_an_insufficient_information_error
-    skip
-    insufficient_info = InsufficientInformationError.new
     assert_raises(InsufficientInformationError) do
-      raise insufficient_info
+      raise InsufficientInformationError
     end
   end
 
   def test_insufficient_information_error_can_have_a_custom_message
-    skip
     insufficient_info = InsufficientInformationError.new("Nope")
     assert_equal "Nope", insufficient_info.message
   end
 
   def test_insufficient_information_error_has_a_default_message
-    skip
     insufficient_info = InsufficientInformationError.new
-    assert_equal "Data unavailable", insufficient_info.message
+    assert_equal "A grade must be provided to answer this question", insufficient_info.message
   end
 
 end
