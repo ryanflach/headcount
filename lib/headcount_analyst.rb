@@ -102,58 +102,107 @@ class HeadcountAnalyst
     district_average / num_years_collected
   end
 
+  def grade_check(grade)
+    unless grade == 3 || grade == 8
+      raise UnknownDataError, "#{grade} is not a known grade"
+    end
+  end
+
   def top_statewide_test_year_over_year_growth(data)
     raise InsufficientInformationError unless data.has_key?(:grade)
-    raise UnknownDataError, "#{data[:grade]} is not a known grade" unless data[:grade] == 3 || data[:grade] == 8
-    data_set = test_data_for_grade(data[:grade])
-    growth_only = data_set.map do |results|
-      name = results[0]
-      growth = growth_in_all_subjects(results)
-      [name, growth]
-    end.to_h
-    sorted = growth_only.sort_by {|name, subjects| subjects[data[:subject]]}.reverse
+    grade_check(data[:grade])
+    data[:subject].nil? ? subject = "all" : subject = data[:subject]
+    data_set = check_subject_and_create_data(data[:grade], subject)
+    sorted = data_set.sort_by {|name, growth| growth}.reverse
     data.has_key?(:top) ? top = data[:top] : top = 1
     result = []
     top.times do |index|
-      result << [sorted[index][0], truncate_float(sorted[index][1][data[:subject]])]
+      result << [sorted[index][0], truncate_float(sorted[index][1])]
     end
     top == 1 ? result.flatten : result
   end
 
-  def test_data_for_grade(grade)
-    district_repo.districts.map do |district|
-      name = district[0]
-      test_object = district_repo.find_by_name(name).statewide_test
-      first_year = test_object.proficient_by_grade(grade).keys.first
-      last_year = test_object.proficient_by_grade(grade).keys.last
-      starting_data = test_object.proficient_by_grade(grade).values.first
-      ending_data = test_object.proficient_by_grade(grade).values.last
-      [name, {first_year => starting_data, last_year => ending_data}]
+  def create_growth_of_aggregated_subjects(data)
+    data.map do |name, subjects|
+      num_categories = subjects.count
+      sum = subjects.values.reduce(:+)
+      [name, (sum/num_categories)]
     end.to_h
   end
 
-  def growth_in_all_subjects(data)
+  def aggregate_all_subject_data(grade)
+    math = test_data_for_grade_and_subject(grade, :math)
+    reading = test_data_for_grade_and_subject(grade, :reading)
+    writing = test_data_for_grade_and_subject(grade, :reading)
+    {:math => math, :reading => reading, :writing => writing}
+  end
+
+  def aggregate_growth_for_all_subjects(subject_data)
+    math_growth = calculate_growth(subject_data[:math], :math)
+    reading_growth = calculate_growth(subject_data[:reading], :reading)
+    writing_growth = calculate_growth(subject_data[:writing], :writing)
+    {:math => math_growth, :reading => reading_growth,
+     :writing => writing_growth}
+  end
+
+  def reduce_all_subject_growth_data(growth_data)
+    reading_and_math = growth_data[:reading].map do |name, score|
+      if growth_data[:math].keys.include?(name)
+        growth_data[:reading][name].merge!(growth_data[:math][name])
+      end
+      [name, score]
+    end.to_h
+    growth_data[:writing].map do |name, score|
+      if reading_and_math.keys.include?(name)
+        growth_data[:writing][name].merge!(reading_and_math[name])
+      end
+      [name, score]
+    end.to_h
+  end
+
+  def check_subject_and_create_data(grade, subject)
+    if subject == "all"
+      subject_data = aggregate_all_subject_data(grade)
+      growth_data = aggregate_growth_for_all_subjects(subject_data)
+      growth_reduced = reduce_all_subject_growth_data(growth_data)
+      create_growth_of_aggregated_subjects(growth_reduced)
+    else
+      data = test_data_for_grade_and_subject(grade, subject)
+      calculate_growth(data, subject).map do |name, subject|
+        [name, subject.values[0]]
+      end.to_h
+    end
+  end
+
+  def calculate_growth(data, subject)
+    data.map do |results|
+      name = results[0]
+      growth = growth_in_subject(results, subject)
+      [name, growth]
+    end.to_h
+  end
+
+  def test_data_for_grade_and_subject(grade, subject)
+    district_repo.districts.map do |district|
+      name = district[0]
+      test_object = district_repo.find_by_name(name).statewide_test
+      data = test_object.proficient_by_grade(grade).find_all do |year, subjects|
+        subjects.include?(subject) && subjects[subject]!= 0.0
+        end.to_h
+      next if data.empty?
+      first_year = data.keys.first
+      last_year = data.keys.last
+      starting_data = data[first_year][subject]
+      ending_data = data[last_year][subject]
+      [name, {first_year => starting_data, last_year => ending_data}]
+    end.reject {|item| item.nil?}.to_h
+  end
+
+  def growth_in_subject(data, subject)
     first_year = data[1].keys.first
     last_year = data[1].keys.last
-    if data[1][last_year][:math].nil? || data[1][first_year][:math].nil?
-      math = 0.0
-    else
-      math = (data[1][last_year][:math] - data[1][first_year][:math]) / (last_year - first_year)
-    end
-    if data[1][last_year][:reading].nil? || data[1][first_year][:reading].nil?
-      reading = 0.0
-    else
-      reading = (data[1][last_year][:reading] - data[1][first_year][:reading]) / (last_year - first_year)
-    end
-    if data[1][last_year][:writing].nil? || data[1][first_year][:writing].nil?
-      writing = 0.0
-    else
-      writing = (data[1][last_year][:writing] - data[1][first_year][:writing]) / (last_year - first_year)
-    end
-    math = 0.0 if math.nan?
-    reading = 0.0 if reading.nan?
-    writing = 0.0 if writing.nan?
-    {:math => math, :reading => reading, :writing => writing}
+    num_years = last_year == first_year ? 1 : last_year - first_year
+    {subject => (data[1][last_year] - data[1][first_year]) / num_years}
   end
 
 end
