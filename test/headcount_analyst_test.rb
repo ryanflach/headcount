@@ -93,14 +93,6 @@ class HeadcountAnalystTest < Minitest::Test
     end
   end
 
-  def test_it_can_access_information_in_statewide_testing
-    dr  = DistrictRepository.new
-    dr.load_data({:statewide_testing => {:third_grade => "./test/data/3rd_grade_prof_CSAP_TCAP.csv"}})
-    ha = HeadcountAnalyst.new(dr)
-    expected = {2008 => {:writing => 0.432}, 2010 => {:reading => 0.617}}
-    assert_equal expected, ha.test_data_for_grade(3)["PLATTE VALLEY RE-7"]
-  end
-
   def test_it_can_find_district_with_top_percentage_growth
     dr  = DistrictRepository.new
     dr.load_data({:statewide_testing => {:third_grade => "./test/data/3rd_grade_prof_CSAP_TCAP.csv"}})
@@ -113,8 +105,8 @@ class HeadcountAnalystTest < Minitest::Test
     dr  = DistrictRepository.new
     dr.load_data({:statewide_testing => {:third_grade => "./test/data/3rd_grade_prof_CSAP_TCAP.csv"}})
     ha = HeadcountAnalyst.new(dr)
-    expected = [['COLORADO', 0.003], ["YUMA SCHOOL DISTRICT 1", 0.0], ["PLATTE CANYON 1", 0.0]]
-    assert_equal expected, ha.top_statewide_test_year_over_year_growth({:grade => 3, :top => 3, :subject => :math})
+    expected = [['COLORADO', 0.003], ["ACADEMY 20", -0.004]]
+    assert_equal expected, ha.top_statewide_test_year_over_year_growth({:grade => 3, :top => 2, :subject => :math})
   end
 
 end

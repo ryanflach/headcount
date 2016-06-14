@@ -105,10 +105,11 @@ class HeadcountAnalyst
   def top_statewide_test_year_over_year_growth(data)
     raise InsufficientInformationError unless data.has_key?(:grade)
     raise UnknownDataError, "#{data[:grade]} is not a known grade" unless data[:grade] == 3 || data[:grade] == 8
-    data_set = test_data_for_grade(data[:grade])
+    data[:subject].nil? ? subject = "all" : subject = data[:subject]
+    data_set = test_data_for_grade_and_subject(data[:grade], subject)
     growth_only = data_set.map do |results|
       name = results[0]
-      growth = growth_in_all_subjects(results)
+      growth = growth_in_subject(results, subject)
       [name, growth]
     end.to_h
     sorted = growth_only.sort_by {|name, subjects| subjects[data[:subject]]}.reverse
@@ -120,40 +121,27 @@ class HeadcountAnalyst
     top == 1 ? result.flatten : result
   end
 
-  def test_data_for_grade(grade)
+  def test_data_for_grade_and_subject(grade, subject)
     district_repo.districts.map do |district|
       name = district[0]
       test_object = district_repo.find_by_name(name).statewide_test
-      first_year = test_object.proficient_by_grade(grade).keys.first
-      last_year = test_object.proficient_by_grade(grade).keys.last
-      starting_data = test_object.proficient_by_grade(grade).values.first
-      ending_data = test_object.proficient_by_grade(grade).values.last
+      data = test_object.proficient_by_grade(grade).find_all do |year, subjects|
+        subjects.include?(subject) && subjects[subject]!= 0.0
+        end.to_h
+      next if data.empty?
+      first_year = data.keys.first
+      last_year = data.keys.last
+      starting_data = data[first_year][subject]
+      ending_data = data[last_year][subject]
       [name, {first_year => starting_data, last_year => ending_data}]
-    end.to_h
+    end.reject {|item| item.nil?}.to_h
   end
 
-  def growth_in_all_subjects(data)
+  def growth_in_subject(data, subject)
     first_year = data[1].keys.first
     last_year = data[1].keys.last
-    if data[1][last_year][:math].nil? || data[1][first_year][:math].nil?
-      math = 0.0
-    else
-      math = (data[1][last_year][:math] - data[1][first_year][:math]) / (last_year - first_year)
-    end
-    if data[1][last_year][:reading].nil? || data[1][first_year][:reading].nil?
-      reading = 0.0
-    else
-      reading = (data[1][last_year][:reading] - data[1][first_year][:reading]) / (last_year - first_year)
-    end
-    if data[1][last_year][:writing].nil? || data[1][first_year][:writing].nil?
-      writing = 0.0
-    else
-      writing = (data[1][last_year][:writing] - data[1][first_year][:writing]) / (last_year - first_year)
-    end
-    math = 0.0 if math.nan?
-    reading = 0.0 if reading.nan?
-    writing = 0.0 if writing.nan?
-    {:math => math, :reading => reading, :writing => writing}
+    num_years = last_year == first_year ? 1 : last_year - first_year
+    {subject => (data[1][last_year] - data[1][first_year]) / num_years}
   end
 
 end
