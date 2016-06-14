@@ -102,23 +102,84 @@ class HeadcountAnalyst
     district_average / num_years_collected
   end
 
+  def grade_check(grade)
+    unless grade == 3 || grade == 8
+      raise UnknownDataError, "#{grade} is not a known grade"
+    end
+  end
+
   def top_statewide_test_year_over_year_growth(data)
     raise InsufficientInformationError unless data.has_key?(:grade)
-    raise UnknownDataError, "#{data[:grade]} is not a known grade" unless data[:grade] == 3 || data[:grade] == 8
+    grade_check(data[:grade])
     data[:subject].nil? ? subject = "all" : subject = data[:subject]
-    data_set = test_data_for_grade_and_subject(data[:grade], subject)
-    growth_only = data_set.map do |results|
+    data_set = check_subject_and_create_data(data[:grade], subject)
+    sorted = data_set.sort_by {|name, growth| growth}.reverse
+    data.has_key?(:top) ? top = data[:top] : top = 1
+    result = []
+    top.times do |index|
+      result << [sorted[index][0], truncate_float(sorted[index][1])]
+    end
+    top == 1 ? result.flatten : result
+  end
+
+  def create_growth_of_aggregated_subjects(data)
+    data.map do |name, subjects|
+      num_categories = subjects.count
+      sum = subjects.values.reduce(:+)
+      [name, (sum/num_categories)]
+    end.to_h
+  end
+
+  def aggregate_all_subject_data(grade)
+    math = test_data_for_grade_and_subject(grade, :math)
+    reading = test_data_for_grade_and_subject(grade, :reading)
+    writing = test_data_for_grade_and_subject(grade, :reading)
+    {:math => math, :reading => reading, :writing => writing}
+  end
+
+  def aggregate_growth_for_all_subjects(subject_data)
+    math_growth = calculate_growth(subject_data[:math], :math)
+    reading_growth = calculate_growth(subject_data[:reading], :reading)
+    writing_growth = calculate_growth(subject_data[:writing], :writing)
+    {:math => math_growth, :reading => reading_growth,
+     :writing => writing_growth}
+  end
+
+  def reduce_all_subject_growth_data(growth_data)
+    reading_and_math = growth_data[:reading].map do |name, score|
+      if growth_data[:math].keys.include?(name)
+        growth_data[:reading][name].merge!(growth_data[:math][name])
+      end
+      [name, score]
+    end.to_h
+    growth_data[:writing].map do |name, score|
+      if reading_and_math.keys.include?(name)
+        growth_data[:writing][name].merge!(reading_and_math[name])
+      end
+      [name, score]
+    end.to_h
+  end
+
+  def check_subject_and_create_data(grade, subject)
+    if subject == "all"
+      subject_data = aggregate_all_subject_data(grade)
+      growth_data = aggregate_growth_for_all_subjects(subject_data)
+      growth_reduced = reduce_all_subject_growth_data(growth_data)
+      create_growth_of_aggregated_subjects(growth_reduced)
+    else
+      data = test_data_for_grade_and_subject(grade, subject)
+      calculate_growth(data, subject).map do |name, subject|
+        [name, subject.values[0]]
+      end.to_h
+    end
+  end
+
+  def calculate_growth(data, subject)
+    data.map do |results|
       name = results[0]
       growth = growth_in_subject(results, subject)
       [name, growth]
     end.to_h
-    sorted = growth_only.sort_by {|name, subjects| subjects[data[:subject]]}.reverse
-    data.has_key?(:top) ? top = data[:top] : top = 1
-    result = []
-    top.times do |index|
-      result << [sorted[index][0], truncate_float(sorted[index][1][data[:subject]])]
-    end
-    top == 1 ? result.flatten : result
   end
 
   def test_data_for_grade_and_subject(grade, subject)

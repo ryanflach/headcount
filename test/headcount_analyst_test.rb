@@ -109,4 +109,12 @@ class HeadcountAnalystTest < Minitest::Test
     assert_equal expected, ha.top_statewide_test_year_over_year_growth({:grade => 3, :top => 2, :subject => :math})
   end
 
+  def test_it_can_compare_growth_across_all_subjects
+    dr  = DistrictRepository.new
+    dr.load_data({:statewide_testing => {:third_grade => "./test/data/3rd_grade_prof_CSAP_TCAP.csv"}})
+    ha = HeadcountAnalyst.new(dr)
+    expected = ["COLORADO", 0.002]
+    assert_equal expected, ha.top_statewide_test_year_over_year_growth(grade: 3)
+  end
+
 end
