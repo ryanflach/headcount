@@ -108,11 +108,28 @@ class HeadcountAnalyst
     end
   end
 
-  def top_statewide_test_year_over_year_growth(data)
+  def weight_check(weights)
+    unless weights.values.reduce(:+) == 1.0
+      raise InsufficientInformationError, "Weights must add up to 1.0"
+    end
+  end
+
+  def has_grade(data)
     raise InsufficientInformationError unless data.has_key?(:grade)
+  end
+
+  def check_data(data)
+    has_grade(data)
     grade_check(data[:grade])
+    weight_check(data[:weighting]) if data.has_key?(:weighting)
+  end
+
+
+  def top_statewide_test_year_over_year_growth(data)
+    check_data(data)
+    data[:weighting].nil? ? weighting = 0 : weighting = data[:weighting]
     data[:subject].nil? ? subject = "all" : subject = data[:subject]
-    data_set = check_subject_and_create_data(data[:grade], subject)
+    data_set = check_subject_and_create_data(data[:grade], subject, weighting)
     sorted = data_set.sort_by {|name, growth| growth}.reverse
     data.has_key?(:top) ? top = data[:top] : top = 1
     result = []
@@ -122,11 +139,18 @@ class HeadcountAnalyst
     top == 1 ? result.flatten : result
   end
 
-  def create_growth_of_aggregated_subjects(data)
-    data.map do |name, subjects|
-      sum = subjects.values.reduce(:+)
-      [name, (sum/3)]
-    end.to_h
+  def create_growth_of_aggregated_subjects(data, weights)
+    if weights == 0
+      data.map do |name, subjects|
+        sum = subjects.values.reduce(:+)
+        [name, (sum/3)]
+      end.to_h
+    else
+      data.map do |name, subjects|
+        [name, subjects.values.reduce(:+)]
+      end
+    end
+
   end
 
   def aggregate_all_subject_data(grade)
@@ -141,30 +165,44 @@ class HeadcountAnalyst
     reading_growth = calculate_growth(subject_data[:reading], :reading)
     writing_growth = calculate_growth(subject_data[:writing], :writing)
     {:math => math_growth, :reading => reading_growth,
-     :writing => writing_growth}
+      :writing => writing_growth}
   end
 
-  def reduce_all_subject_growth_data(growth_data)
+  def reduce_all_subject_growth_data(growth_data, weighting)
     reading_and_math = growth_data[:reading].map do |name, score|
       if growth_data[:math].keys.include?(name)
         growth_data[:reading][name].merge!(growth_data[:math][name])
       end
       [name, score]
     end.to_h
-    growth_data[:writing].map do |name, score|
+    results = growth_data[:writing].map do |name, score|
       if reading_and_math.keys.include?(name)
         growth_data[:writing][name].merge!(reading_and_math[name])
       end
       [name, score]
     end.to_h
+    if weighting == 0
+      results
+    else
+      apply_weighting_by_category(results, weighting)
+    end
   end
 
-  def check_subject_and_create_data(grade, subject)
+  def apply_weighting_by_category(data, weighting)
+    data.map do |name, subjects|
+      subjects[:math] *= weighting[:math] if subjects.has_key?(:math)
+      subjects[:reading] *= weighting[:reading] if subjects.has_key?(:reading)
+      subjects[:writing] *= weighting[:writing] if subjects.has_key?(:writing)
+      [name, subjects]
+    end.to_h
+  end
+
+  def check_subject_and_create_data(grade, subject, weighting)
     if subject == "all"
       subject_data = aggregate_all_subject_data(grade)
       growth_data = aggregate_growth_for_all_subjects(subject_data)
-      growth_reduced = reduce_all_subject_growth_data(growth_data)
-      create_growth_of_aggregated_subjects(growth_reduced)
+      growth_reduced = reduce_all_subject_growth_data(growth_data, weighting)
+      create_growth_of_aggregated_subjects(growth_reduced, weighting)
     else
       data = test_data_for_grade_and_subject(grade, subject)
       calculate_growth(data, subject).map do |name, subject|

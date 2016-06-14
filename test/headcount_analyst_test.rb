@@ -117,4 +117,19 @@ class HeadcountAnalystTest < Minitest::Test
     assert_equal expected, ha.top_statewide_test_year_over_year_growth(grade: 3)
   end
 
+  def test_it_raises_an_error_if_weighting_is_provided_but_does_not_add_to_1
+    ha = HeadcountAnalyst.new
+    assert_raises(InsufficientInformationError) do
+      ha.weight_check({:math => 0.4, :reading => 0.5, :writing => 0.0})
+    end
+  end
+
+  def test_it_can_take_weight_arguments_and_return_weighted_results
+    dr  = DistrictRepository.new
+    dr.load_data({:statewide_testing => {:third_grade => "./test/data/3rd_grade_prof_CSAP_TCAP.csv"}})
+    ha = HeadcountAnalyst.new(dr)
+    expected = ["CENTENNIAL R-1", 0.075]
+    assert_equal expected, ha.top_statewide_test_year_over_year_growth(grade: 3, weighting: {math: 0.5, reading: 0.5, writing: 0.0})
+  end
+
 end
