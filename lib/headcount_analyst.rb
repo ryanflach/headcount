@@ -124,16 +124,15 @@ class HeadcountAnalyst
 
   def create_growth_of_aggregated_subjects(data)
     data.map do |name, subjects|
-      num_categories = subjects.count
       sum = subjects.values.reduce(:+)
-      [name, (sum/num_categories)]
+      [name, (sum/3)]
     end.to_h
   end
 
   def aggregate_all_subject_data(grade)
     math = test_data_for_grade_and_subject(grade, :math)
     reading = test_data_for_grade_and_subject(grade, :reading)
-    writing = test_data_for_grade_and_subject(grade, :reading)
+    writing = test_data_for_grade_and_subject(grade, :writing)
     {:math => math, :reading => reading, :writing => writing}
   end
 

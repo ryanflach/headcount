@@ -97,7 +97,7 @@ class HeadcountAnalystTest < Minitest::Test
     dr  = DistrictRepository.new
     dr.load_data({:statewide_testing => {:third_grade => "./test/data/3rd_grade_prof_CSAP_TCAP.csv"}})
     ha = HeadcountAnalyst.new(dr)
-    expected = ['COLORADO', 0.003]
+    expected = ["SANGRE DE CRISTO RE-22J", 0.071]
     assert_equal expected, ha.top_statewide_test_year_over_year_growth({:grade => 3, :subject => :math})
   end
 
@@ -105,7 +105,7 @@ class HeadcountAnalystTest < Minitest::Test
     dr  = DistrictRepository.new
     dr.load_data({:statewide_testing => {:third_grade => "./test/data/3rd_grade_prof_CSAP_TCAP.csv"}})
     ha = HeadcountAnalyst.new(dr)
-    expected = [['COLORADO', 0.003], ["ACADEMY 20", -0.004]]
+    expected = [["SANGRE DE CRISTO RE-22J", 0.071], ["CENTENNIAL R-1", 0.036]]
     assert_equal expected, ha.top_statewide_test_year_over_year_growth({:grade => 3, :top => 2, :subject => :math})
   end
 
@@ -113,7 +113,7 @@ class HeadcountAnalystTest < Minitest::Test
     dr  = DistrictRepository.new
     dr.load_data({:statewide_testing => {:third_grade => "./test/data/3rd_grade_prof_CSAP_TCAP.csv"}})
     ha = HeadcountAnalyst.new(dr)
-    expected = ["COLORADO", 0.002]
+    expected = ["SANGRE DE CRISTO RE-22J", 0.071]
     assert_equal expected, ha.top_statewide_test_year_over_year_growth(grade: 3)
   end
 
