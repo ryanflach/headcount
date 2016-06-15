@@ -22,14 +22,7 @@ class StatewideTestRepository
         data = base_data(row)
         data_type = data_source.values[0].keys[index]
         existing = find_by_name(data[:name])
-        if grade_levels.include?(data_type)
-          data[:subject], data[:grade] = row[:score].downcase.to_sym, data_type
-          add_grade_data(data, existing)
-        else
-          data[:race] = race_to_sym(row[:race_ethnicity])
-          data[:subject] = data_type
-          add_test_results(data, existing)
-        end
+        check_data_type_and_add_to_repo(data_type, existing, data, row)
       end
     end
   end
@@ -77,6 +70,16 @@ class StatewideTestRepository
   end
 
   private
+
+  def check_data_type_and_add_to_repo(data_type, existing, data, row)
+    if grade_levels.include?(data_type)
+      data[:subject], data[:grade] = row[:score].downcase.to_sym, data_type
+      add_grade_data(data, existing)
+    else
+      data[:race], data[:subject] = race_to_sym(row[:race_ethnicity]), data_type
+      add_test_results(data, existing)
+    end
+  end
 
   def merge_new_grade_data_into_existing(data, existing)
     if has_grade_and_year(existing, data[:grade], data[:year])
