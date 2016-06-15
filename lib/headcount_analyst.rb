@@ -58,16 +58,26 @@ class HeadcountAnalyst
 
   def kindergarten_participation_correlates_with_high_school_graduation(comp)
     district = comp.values[0]
-    if comp.keys[0] == :for
-      if district.upcase == 'STATEWIDE'
-        results = compare_all_schools
-      else
-        return kindergarten_participation_against_high_school_graduation(district).between?(0.6, 1.5)
-      end
-    else
-      results = compare_across_multiple_districts(district)
-    end
+    return kpahsg(district)                                if for_district(comp, district)
+    results = compare_all_schools                         if for_statewide(comp, district)
+    results = compare_across_multiple_districts(district) if against_colorado(comp, district)
     calculate_correlation(results)
+  end
+
+  def kpahsg(district)
+    kindergarten_participation_against_high_school_graduation(district).between?(0.6, 1.5)
+  end
+
+  def against_colorado(comp, district)
+    comp.keys[0] != :for
+  end
+
+  def for_statewide(comp, district)
+    comp.keys[0] == :for && district.upcase == 'STATEWIDE'
+  end
+
+  def for_district(comp, district)
+    comp.keys[0] == :for && district.upcase != 'STATEWIDE'
   end
 
   def compare_all_schools
@@ -83,9 +93,8 @@ class HeadcountAnalyst
   end
 
   def compare_across_multiple_districts(districts)
-    districts.map do |district_name|
-      kindergarten_participation_against_high_school_graduation(district_name).between?(0.6, 1.5)
-    end
+    districts.map { |district| kpahsg(district) }
+      # kindergarten_participation_against_high_school_graduation(district_name).between?(0.6, 1.5)
   end
 
   def no_kinder_data?(district)
@@ -102,10 +111,8 @@ class HeadcountAnalyst
     district_average / num_years_collected
   end
 
-  def grade_check(grade)
-    unless grade == 3 || grade == 8
-      raise UnknownDataError, "#{grade} is not a known grade"
-    end
+  def grade_check(g)
+    raise UnknownDataError, "#{g} is not a known grade" unless g == 3 || g == 8
   end
 
   def weight_check(weights)
@@ -132,9 +139,8 @@ class HeadcountAnalyst
     data_set = check_subject_and_create_data(data[:grade], subject, weighting)
     sorted = data_set.sort_by {|name, growth| growth}.reverse
     data.has_key?(:top) ? top = data[:top] : top = 1
-    result = []
-    top.times do |index|
-      result << [sorted[index][0], truncate_float(sorted[index][1])]
+    result = top.times.map do |index|
+      [sorted[index][0], truncate_float(sorted[index][1])]
     end
     top == 1 ? result.flatten : result
   end
@@ -150,7 +156,6 @@ class HeadcountAnalyst
         [name, subjects.values.reduce(:+)]
       end
     end
-
   end
 
   def aggregate_all_subject_data(grade)
