@@ -110,25 +110,40 @@ class HeadcountAnalyst
     end
   end
 
+  def has_grade(data)
+    raise InsufficientInformationError unless data.has_key?(:grade)
+  end
+
   def weight_check(weights)
     unless weights.values.reduce(:+) == 1.0
       raise InsufficientInformationError, "Weights must add up to 1.0"
     end
   end
 
-  def has_grade(data)
-    raise InsufficientInformationError unless data.has_key?(:grade)
+  def weighting_check(data)
+    # if data.has_key?(:weighting)
+    #   weighting = data[:weighting]
+    # else
+    #   weighting = 0
+    # end
+
+    data.has_key?(:weighting) ? weighting = data[:weighting] : weighting = 0
+
+    # weighting = data[:weighting] if data.has_key?(:weighting)
+    # data[:weighting] ? data[:weighting] : weighting = 0
   end
 
-  def check_data(data)
-    has_grade(data)
-    grade_check(data[:grade])
-    weight_check(data[:weighting]) if data.has_key?(:weighting)
-  end
+  # def check_data(data)
+  #   has_grade(data)
+  #   grade_check(data[:grade])
+  #   weight_check(weighting_check(data))
+  # end
 
   def top_statewide_test_year_over_year_growth(data)
-    check_data(data)
-    weighting = data[:weighting] ? data[:weighting] : weighting = 0
+    has_grade(data)
+    grade_check(data[:grade])
+    weighting = weighting_check(data)
+    # weighting = data[:weighting] ? data[:weighting] : weighting = 0
     subject = data[:subject] ? data[:subject] : subject = "all"
     data_set = check_subject_and_create_data(data[:grade], subject, weighting)
     sorted = data_set.sort_by {|name, growth| growth}.reverse
