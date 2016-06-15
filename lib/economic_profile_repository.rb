@@ -70,11 +70,7 @@ class EconomicProfileRepository
   end
 
   def assign_percent_or_num(data)
-    if data[:type].downcase.strip == "percent"
-      data[:data].to_f
-    else
-      data[:data].to_i
-    end
+    data[:type].downcase == "percent" ? data[:data].to_f : data[:data].to_i
   end
 
   private
@@ -166,7 +162,7 @@ class EconomicProfileRepository
   end
 
   def base_data(row)
-    {:name => row[:location], :year => row[:timeframe],
+    {:name => row[:location],   :year => row[:timeframe],
      :type => row[:dataformat], :data => row[:data]}
   end
 

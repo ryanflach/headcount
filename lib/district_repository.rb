@@ -60,9 +60,9 @@ class DistrictRepository
   end
 
   def possible_repos
-    {:enrollment => @enrollment,
+    {:enrollment        => @enrollment,
      :statewide_testing => @statewide_testing,
-     :economic_profile => @economic_profile}
+     :economic_profile  => @economic_profile}
   end
 
 end
