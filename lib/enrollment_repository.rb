@@ -28,8 +28,8 @@ class EnrollmentRepository
         grade_level = enrollment_types[data_source.values[0].keys[index]]
         existing = find_by_name(name)
         if existing.nil?
-          add_enrollment(
-            Enrollment.new({:name => name, grade_level => {year => percent}}))
+          data = {:name => name, grade_level => {year => percent}}
+          add_enrollment(Enrollment.new(data))
         else
           grade_level_merge(existing, grade_level, year, percent)
         end
