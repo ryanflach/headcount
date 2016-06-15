@@ -12,8 +12,8 @@ class HeadcountAnalyst
 
   def kindergarten_participation_rate_variation(dist, comp)
     data = kindergarten_district_and_comparison_data(dist, comp)
-    truncate_float(
-      find_average(data[:district]) / find_average(data[:comparison]))
+    district, comparison = data[:district], data[:comparison]
+    truncate_float(find_average(district) / find_average(comparison))
   end
 
   def kindergarten_participation_rate_variation_trend(dist, comp)
@@ -21,32 +21,6 @@ class HeadcountAnalyst
     data[:district].merge(data[:comparison]) do |year, dist, comp|
       truncate_float(dist / comp)
     end
-  end
-
-  def kindergarten_district_and_comparison_data(dist, comp)
-    district_data = district_kindergarten_enrollment_data(dist)
-    comp_data = district_kindergarten_enrollment_data(comp[comp.keys[0]])
-    {:district => district_data, :comparison => comp_data}
-  end
-
-  def district_kindergarten_enrollment_data(dist)
-    district_repo.find_by_name(dist).enrollment.kinder_participation_floats
-  end
-
-  def graduation_year_rate_variation(dist, comp)
-    data = graduation_district_comparison_data(dist, comp)
-    truncate_float(
-      find_average(data[:district]) / find_average(data[:comparison]))
-  end
-
-  def graduation_district_comparison_data(dist, comp)
-    district_data = district_graduation_data(dist)
-    comparison_data = district_graduation_data(comp[comp.keys[0]])
-    {:district => district_data, :comparison => comparison_data}
-  end
-
-  def district_graduation_data(dist)
-    district_repo.find_by_name(dist).enrollment.graduation_year_floats
   end
 
   def kindergarten_participation_against_high_school_graduation(dist)
@@ -61,6 +35,54 @@ class HeadcountAnalyst
     results = compare_all_schools              if for_statewide(comp, dist)
     results = compare_multiple_districts(dist) if against_colorado(comp, dist)
     calculate_correlation(results)
+  end
+
+  def top_statewide_test_year_over_year_growth(data)
+    weighting = check_data_and_assign_weight(data)
+    subject = data[:subject] ? data[:subject] : subject = "all"
+    data_set = check_subject_and_create_data(data[:grade], subject, weighting)
+    sorted = data_set.sort_by {|name, growth| growth}.reverse
+    data.has_key?(:top) ? top = data[:top] : top = 1
+    result = top.times.map do |index|
+      [sorted[index][0], truncate_float(sorted[index][1])]
+    end
+    top == 1 ? result.flatten : result
+  end
+
+  def kindergarten_district_and_comparison_data(dist, comp)
+    district_data = district_kindergarten_enrollment_data(dist)
+    comp_data = district_kindergarten_enrollment_data(comp[comp.keys[0]])
+    {:district => district_data, :comparison => comp_data}
+  end
+
+  def district_kindergarten_enrollment_data(dist)
+    district_repo.find_by_name(dist).enrollment.kinder_participation_floats
+  end
+
+  def weighting_check(data)
+    weighting = data.has_key?(:weighting) ? data[:weighting] : 0
+    unless weighting == 0 || weighting.values.reduce(:+) == 1.0
+      raise InsufficientInformationError, "Weights must add up to 1.0"
+    end
+    weighting
+  end
+
+  private
+
+  def graduation_year_rate_variation(dist, comp)
+    data = graduation_district_comparison_data(dist, comp)
+    district, comparison = data[:district], data[:comparison]
+    truncate_float(find_average(district) / find_average(comparison))
+  end
+
+  def graduation_district_comparison_data(dist, comp)
+    district_data = district_graduation_data(dist)
+    comparison_data = district_graduation_data(comp[comp.keys[0]])
+    {:district => district_data, :comparison => comparison_data}
+  end
+
+  def district_graduation_data(dist)
+    district_repo.find_by_name(dist).enrollment.graduation_year_floats
   end
 
   def correlation?(dist)
@@ -104,54 +126,16 @@ class HeadcountAnalyst
     district.no_hs_grad_data?
   end
 
-  def grade_check(grade)
-    unless grade == 3 or grade == 8
-      raise UnknownDataError, "#{grade} is not a known grade"
-    end
-  end
-
-  def has_grade(data)
+  def has_grade_and_valid_year(data)
     raise InsufficientInformationError unless data.has_key?(:grade)
-  end
-
-  def weight_check(weights)
-    unless weights.values.reduce(:+) == 1.0
-      raise InsufficientInformationError, "Weights must add up to 1.0"
+    unless data[:grade] == 3 or data[:grade] == 8
+      raise UnknownDataError, "#{data[:grade]} is not a known grade"
     end
   end
 
-  def weighting_check(data)
-    # if data.has_key?(:weighting)
-    #   weighting = data[:weighting]
-    # else
-    #   weighting = 0
-    # end
-
-    data.has_key?(:weighting) ? weighting = data[:weighting] : weighting = 0
-
-    # weighting = data[:weighting] if data.has_key?(:weighting)
-    # data[:weighting] ? data[:weighting] : weighting = 0
-  end
-
-  # def check_data(data)
-  #   has_grade(data)
-  #   grade_check(data[:grade])
-  #   weight_check(weighting_check(data))
-  # end
-
-  def top_statewide_test_year_over_year_growth(data)
-    has_grade(data)
-    grade_check(data[:grade])
-    weighting = weighting_check(data)
-    # weighting = data[:weighting] ? data[:weighting] : weighting = 0
-    subject = data[:subject] ? data[:subject] : subject = "all"
-    data_set = check_subject_and_create_data(data[:grade], subject, weighting)
-    sorted = data_set.sort_by {|name, growth| growth}.reverse
-    data.has_key?(:top) ? top = data[:top] : top = 1
-    result = top.times.map do |index|
-      [sorted[index][0], truncate_float(sorted[index][1])]
-    end
-    top == 1 ? result.flatten : result
+  def check_data_and_assign_weight(data)
+    has_grade_and_valid_year(data)
+    weighting_check(data)
   end
 
   def create_growth_of_aggregated_subjects(data, weights)
@@ -168,7 +152,7 @@ class HeadcountAnalyst
   end
 
   def aggregate_all_subject_data(grade)
-       math = test_data_for_grade_and_subject(grade, :math)
+    math    = test_data_for_grade_and_subject(grade, :math)
     reading = test_data_for_grade_and_subject(grade, :reading)
     writing = test_data_for_grade_and_subject(grade, :writing)
     {:math => math, :reading => reading, :writing => writing}
@@ -176,7 +160,7 @@ class HeadcountAnalyst
 
   def aggregate_growth_for_all_subjects(subject)
     growth = Hash.new
-    growth[:math] =    calculate_growth(subject[:math], :math)
+    growth[:math]    = calculate_growth(subject[:math], :math)
     growth[:reading] = calculate_growth(subject[:reading], :reading)
     growth[:writing] = calculate_growth(subject[:writing], :writing)
     growth
@@ -235,14 +219,18 @@ class HeadcountAnalyst
     district_repo.districts.map do |district|
       name = district[0]
       test_object = district_repo.find_by_name(name).statewide_test
-      data = test_object.proficient_by_grade(grade).find_all do |year, subjects|
-                subjects.include?(subject) && subjects[subject]!= 0.0
-             end.to_h
+      data = valid_data_for_subject_in_grade(test_object, subject, grade)
       next if data.empty?
       first_year, last_year = data.keys.first, data.keys.last
       data_start, data_end = data[first_year][subject], data[last_year][subject]
       [name, {first_year => data_start, last_year => data_end}]
     end.reject {|item| item.nil?}.to_h
+  end
+
+  def valid_data_for_subject_in_grade(object, subject, grade)
+    object.proficient_by_grade(grade).find_all do |year, subjects|
+      subjects.include?(subject) && subjects[subject]!= 0.0
+    end.to_h
   end
 
   def growth_in_subject(data, subject)
