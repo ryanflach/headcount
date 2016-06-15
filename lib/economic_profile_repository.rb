@@ -19,13 +19,9 @@ class EconomicProfileRepository
   def load_data(data_source)
     data_source.values[0].values.each_with_index do |filename, index|
       CSV.foreach(filename, headers: true, header_converters: :symbol) do |row|
-        data_type = data_source.values[0].keys[index]
-        if data_type == :free_or_reduced_price_lunch
-          next unless row[:poverty_level].strip.downcase.include?('free or')
-        end
-        data     = base_data(row)
-        existing = find_by_name(data[:name])
-        check_data_type_and_add_to_repo(data, data_type, existing)
+        type, data, existing = define_data(data_source, row, index)
+        next unless free_or_reduced(row) if type == :free_or_reduced_price_lunch
+        check_data_type_and_add_to_repo(data, type, existing)
       end
     end
   end
@@ -34,7 +30,7 @@ class EconomicProfileRepository
     name, income = data[:name], data[:data].to_i
     year_range   = data[:year].split('-').map {|year| year.to_i}
     if existing.nil?
-      create_new_economic_profile([name, income, year_range], 'median')
+      create_new_econ_profile([name, income, year_range], 'median')
     else
       merge_median_data_with_existing(existing, income, year_range)
     end
@@ -44,29 +40,20 @@ class EconomicProfileRepository
     name, year = data[:name], data[:year].to_i
     value = assign_percent_or_num(data)
     if value.is_a?(Float)
-      if existing.nil?
-        create_new_economic_profile([name, year, value], 'poverty')
-      else
-        merge_poverty_data_with_existing(existing, year, value)
-      end
+      create_new_econ_profile([name, year, value], 'poverty') if existing.nil?
+      merge_poverty_data_with_existing(existing, year, value) if existing
     end
   end
 
   def add_lunch_data(data, existing)
-    if existing.nil?
-      add_econ_profile_data(EconomicProfile.new(data))
-    else
-      merge_lunch_data_with_existing(existing, data)
-    end
+    add_econ_profile_data(EconomicProfile.new(data)) if existing.nil?
+    merge_lunch_data_with_existing(existing, data)   if existing
   end
 
   def add_title_i(data, existing)
     name, year, percent = data[:name], data[:year].to_i, data[:data].to_f
-    if existing.nil?
-      create_new_economic_profile([name, year, percent], 'title_i')
-    else
-      merge_title_i_data_with_existing(existing, year, percent)
-    end
+    create_new_econ_profile([name, year, percent], 'title_i') if existing.nil?
+    merge_title_i_data_with_existing(existing, year, percent) if existing
   end
 
   def assign_percent_or_num(data)
@@ -127,14 +114,10 @@ class EconomicProfileRepository
     end
   end
 
-  def create_new_economic_profile(profile, type)
-    if type == 'median'
-      data = format_new_median_data(profile)
-    elsif type == 'poverty'
-      data = format_new_children_in_poverty_data(profile)
-    else
-      data = format_new_title_i_data(profile)
-    end
+  def create_new_econ_profile(profile, type)
+    data = format_new_median_data(profile)              if type == 'median'
+    data = format_new_children_in_poverty_data(profile) if type == 'poverty'
+    data = format_new_title_i_data(profile)             if type == 'title_i'
     add_econ_profile_data(EconomicProfile.new(data))
   end
 
@@ -154,16 +137,22 @@ class EconomicProfileRepository
   end
 
   def merge_title_i_data_with_existing(existing, year, percent)
-    if existing.title_i.nil?
-      existing.econ_data[:title_i] = {year => percent}
-    else
-      existing.title_i.merge!({year => percent})
-    end
+    existing.econ_data[:title_i] = {year => percent}  if existing.title_i.nil?
+    existing.title_i.merge!({year => percent})        if existing.title_i
   end
 
   def base_data(row)
     {:name => row[:location],   :year => row[:timeframe],
      :type => row[:dataformat], :data => row[:data]}
+  end
+
+  def free_or_reduced(row)
+    row[:poverty_level].strip.downcase.include?('free or')
+  end
+
+  def define_data(source, row, index)
+    name = base_data(row)[:name]
+    result = [source.values[0].keys[index], base_data(row), find_by_name(name)]
   end
 
 end

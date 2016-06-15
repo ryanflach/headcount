@@ -19,30 +19,27 @@ class StatewideTestRepository
   def load_data(data_source)
     data_source.values[0].values.each_with_index do |filename, index|
       CSV.foreach(filename, headers: true, header_converters: :symbol) do |row|
-        data = base_data(row)
-        data_type = data_source.values[0].keys[index]
-        existing = find_by_name(data[:name])
+        data, data_type, existing = define_data(data_source, row, index)
         check_data_type_and_add_to_repo(data_type, existing, data, row)
       end
     end
   end
 
+  def define_data(source, row, index)
+    name = base_data(row)[:name]
+    [base_data(row), source.values[0].keys[index], find_by_name(name)]
+  end
+
   def add_grade_data(data, existing)
     state_data = data_format(data, 'grade')
-    if existing.nil?
-      add_testing_data(StatewideTest.new(state_data))
-    else
-      merge_new_grade_data_into_existing(data, existing)
-    end
+    add_testing_data(StatewideTest.new(state_data))    if existing.nil?
+    merge_new_grade_data_into_existing(data, existing) if existing
   end
 
   def add_test_results(data, existing)
     state_data = data_format(data, 'test')
-    if existing.nil?
-      add_testing_data(StatewideTest.new(state_data))
-    else
-      merge_new_test_data_into_existing(data, existing)
-    end
+    add_testing_data(StatewideTest.new(state_data))   if existing.nil?
+    merge_new_test_data_into_existing(data, existing) if existing
   end
 
   def has_grade(test_object, grade)

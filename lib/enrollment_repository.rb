@@ -21,20 +21,21 @@ class EnrollmentRepository
      :high_school_graduation => :high_school_graduation}
   end
 
-  def load_data(data_source)
-    data_source.values[0].values.each_with_index do |filename, index|
+  def load_data(source)
+    source.values[0].values.each_with_index do |filename, index|
       CSV.foreach(filename, headers: true, header_converters: :symbol) do |row|
-        name, year, percent = row[:location], row[:timeframe].to_i, row[:data]
-        grade_level = enrollment_types[data_source.values[0].keys[index]]
-        existing = find_by_name(name)
-        if existing.nil?
-          data = {:name => name, grade_level => {year => percent}}
-          add_enrollment(Enrollment.new(data))
-        else
-          grade_level_merge(existing, grade_level, year, percent)
-        end
+        name, year, percent, grade, existing = define_data(source, row, index)
+        data = {:name => name, grade => {year => percent}}
+        add_enrollment(Enrollment.new(data))              if existing.nil?
+        grade_level_merge(existing, grade, year, percent) if existing
       end
     end
+  end
+
+  def define_data(source, row, index)
+    name = row[:location]
+    [name, row[:timeframe].to_i, row[:data],
+      enrollment_types[source.values[0].keys[index]],find_by_name(name)]
   end
 
   def grade_level_merge(existing, grade_level, year, percent)
