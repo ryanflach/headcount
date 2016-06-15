@@ -229,14 +229,12 @@ class HeadcountAnalyst
       name = district[0]
       test_object = district_repo.find_by_name(name).statewide_test
       data = test_object.proficient_by_grade(grade).find_all do |year, subjects|
-        subjects.include?(subject) && subjects[subject]!= 0.0
-        end.to_h
+                subjects.include?(subject) && subjects[subject]!= 0.0
+             end.to_h
       next if data.empty?
-      first_year = data.keys.first
-      last_year = data.keys.last
-      starting_data = data[first_year][subject]
-      ending_data = data[last_year][subject]
-      [name, {first_year => starting_data, last_year => ending_data}]
+      first_year, last_year = data.keys.first, data.keys.last
+      data_start, data_end = data[first_year][subject], data[last_year][subject]
+      [name, {first_year => data_start, last_year => data_end}]
     end.reject {|item| item.nil?}.to_h
   end
 
