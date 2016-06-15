@@ -10,62 +10,62 @@ class HeadcountAnalyst
     @district_repo = district_repo
   end
 
-  def kindergarten_participation_rate_variation(district, comparison)
-    data = kindergarten_district_and_comparison_data(district, comparison)
+  def kindergarten_participation_rate_variation(dist, comp)
+    data = kindergarten_district_and_comparison_data(dist, comp)
     truncate_float(
       find_average(data[:district]) / find_average(data[:comparison]))
   end
 
-  def kindergarten_participation_rate_variation_trend(district, comparison)
-    data = kindergarten_district_and_comparison_data(district, comparison)
-    trend = data[:district].merge(data[:comparison]) do |year, dist, comp|
+  def kindergarten_participation_rate_variation_trend(dist, comp)
+    data = kindergarten_district_and_comparison_data(dist, comp)
+    data[:district].merge(data[:comparison]) do |year, dist, comp|
       truncate_float(dist / comp)
     end
   end
 
-  def kindergarten_district_and_comparison_data(district, comp)
-    district_data = district_kindergarten_enrollment_data(district)
+  def kindergarten_district_and_comparison_data(dist, comp)
+    district_data = district_kindergarten_enrollment_data(dist)
     comp_data = district_kindergarten_enrollment_data(comp[comp.keys[0]])
     {:district => district_data, :comparison => comp_data}
   end
 
-  def district_kindergarten_enrollment_data(district)
-    district_repo.find_by_name(district).enrollment.kinder_participation_floats
+  def district_kindergarten_enrollment_data(dist)
+    district_repo.find_by_name(dist).enrollment.kinder_participation_floats
   end
 
-  def graduation_year_rate_variation(district, comparison)
-    data = graduation_district_comparison_data(district, comparison)
+  def graduation_year_rate_variation(dist, comp)
+    data = graduation_district_comparison_data(dist, comp)
     truncate_float(
       find_average(data[:district]) / find_average(data[:comparison]))
   end
 
-  def graduation_district_comparison_data(district, comparison)
-    district_data = district_graduation_data(district)
-    comparison_data = district_graduation_data(comparison[comparison.keys[0]])
+  def graduation_district_comparison_data(dist, comp)
+    district_data = district_graduation_data(dist)
+    comparison_data = district_graduation_data(comp[comp.keys[0]])
     {:district => district_data, :comparison => comparison_data}
   end
 
-  def district_graduation_data(district)
-    district_repo.find_by_name(district).enrollment.graduation_year_floats
+  def district_graduation_data(dist)
+    district_repo.find_by_name(dist).enrollment.graduation_year_floats
   end
 
   def kindergarten_participation_against_high_school_graduation(dist)
-    kinder =
-      kindergarten_participation_rate_variation(dist, :against => "COLORADO")
-    grad = graduation_year_rate_variation(dist, :against => "COLORADO")
-    truncate_float(kinder / grad)
+    k = kindergarten_participation_rate_variation(dist, :against => "COLORADO")
+    g = graduation_year_rate_variation(dist,            :against => "COLORADO")
+    truncate_float(k / g)
   end
 
   def kindergarten_participation_correlates_with_high_school_graduation(comp)
-    district = comp.values[0]
-    return kpahsg(district)                                if for_district(comp, district)
-    results = compare_all_schools                         if for_statewide(comp, district)
-    results = compare_across_multiple_districts(district) if against_colorado(comp, district)
+    dist = comp.values[0]
+    return correlation?(dist)                  if for_district(comp, dist)
+    results = compare_all_schools              if for_statewide(comp, dist)
+    results = compare_multiple_districts(dist) if against_colorado(comp, dist)
     calculate_correlation(results)
   end
 
-  def kpahsg(district)
-    kindergarten_participation_against_high_school_graduation(district).between?(0.6, 1.5)
+  def correlation?(dist)
+    kinder_hs = kindergarten_participation_against_high_school_graduation(dist)
+    kinder_hs.between?(0.6, 1.5)
   end
 
   def against_colorado(comp, district)
@@ -83,7 +83,7 @@ class HeadcountAnalyst
   def compare_all_schools
     district_repo.districts.map do |district|
       next if colorado_or_no_data?(district)
-      kindergarten_participation_against_high_school_graduation(district[0]).between?(0.6, 1.5)
+      correlation?(district[0])
     end
   end
 
@@ -92,9 +92,8 @@ class HeadcountAnalyst
     (no_kinder_data?(district[1]) || no_hs_data?(district[1])))
   end
 
-  def compare_across_multiple_districts(districts)
-    districts.map { |district| kpahsg(district) }
-      # kindergarten_participation_against_high_school_graduation(district_name).between?(0.6, 1.5)
+  def compare_multiple_districts(districts)
+    districts.map { |district| correlation?(district) }
   end
 
   def no_kinder_data?(district)
@@ -105,14 +104,10 @@ class HeadcountAnalyst
     district.no_hs_grad_data?
   end
 
-  def find_average(data)
-    num_years_collected = data.count.to_f
-    district_average = data.values.reduce(:+)
-    district_average / num_years_collected
-  end
-
-  def grade_check(g)
-    raise UnknownDataError, "#{g} is not a known grade" unless g == 3 || g == 8
+  def grade_check(grade)
+    unless grade == 3 or grade == 8
+      raise UnknownDataError, "#{grade} is not a known grade"
+    end
   end
 
   def weight_check(weights)
@@ -131,11 +126,10 @@ class HeadcountAnalyst
     weight_check(data[:weighting]) if data.has_key?(:weighting)
   end
 
-
   def top_statewide_test_year_over_year_growth(data)
     check_data(data)
-    data[:weighting].nil? ? weighting = 0 : weighting = data[:weighting]
-    data[:subject].nil? ? subject = "all" : subject = data[:subject]
+    weighting = data[:weighting] ? data[:weighting] : weighting = 0
+    subject = data[:subject] ? data[:subject] : subject = "all"
     data_set = check_subject_and_create_data(data[:grade], subject, weighting)
     sorted = data_set.sort_by {|name, growth| growth}.reverse
     data.has_key?(:top) ? top = data[:top] : top = 1
@@ -159,43 +153,43 @@ class HeadcountAnalyst
   end
 
   def aggregate_all_subject_data(grade)
-    math = test_data_for_grade_and_subject(grade, :math)
+       math = test_data_for_grade_and_subject(grade, :math)
     reading = test_data_for_grade_and_subject(grade, :reading)
     writing = test_data_for_grade_and_subject(grade, :writing)
     {:math => math, :reading => reading, :writing => writing}
   end
 
-  def aggregate_growth_for_all_subjects(subject_data)
-    math_growth = calculate_growth(subject_data[:math], :math)
-    reading_growth = calculate_growth(subject_data[:reading], :reading)
-    writing_growth = calculate_growth(subject_data[:writing], :writing)
-    {:math => math_growth, :reading => reading_growth,
-      :writing => writing_growth}
+  def aggregate_growth_for_all_subjects(subject)
+    growth = Hash.new
+    growth[:math] =    calculate_growth(subject[:math], :math)
+    growth[:reading] = calculate_growth(subject[:reading], :reading)
+    growth[:writing] = calculate_growth(subject[:writing], :writing)
+    growth
   end
 
   def reduce_all_subject_growth_data(growth_data, weighting)
-    reading_and_math = growth_data[:reading].map do |name, score|
-      if growth_data[:math].keys.include?(name)
-        growth_data[:reading][name].merge!(growth_data[:math][name])
-      end
-      [name, score]
-    end.to_h
+    reading_and_math = reading_math_growth_data(growth_data, weighting)
     results = growth_data[:writing].map do |name, score|
       if reading_and_math.keys.include?(name)
         growth_data[:writing][name].merge!(reading_and_math[name])
       end
       [name, score]
     end.to_h
-    if weighting == 0
-      results
-    else
-      apply_weighting_by_category(results, weighting)
-    end
+    weighting == 0 ? results : apply_weighting_by_category(results, weighting)
+  end
+
+  def reading_math_growth_data(growth_data, weighting)
+    growth_data[:reading].map do |name, score|
+      if growth_data[:math].keys.include?(name)
+        growth_data[:reading][name].merge!(growth_data[:math][name])
+      end
+      [name, score]
+    end.to_h
   end
 
   def apply_weighting_by_category(data, weighting)
     data.map do |name, subjects|
-      subjects[:math] *= weighting[:math] if subjects.has_key?(:math)
+      subjects[:math]    *= weighting[:math]    if subjects.has_key?(:math)
       subjects[:reading] *= weighting[:reading] if subjects.has_key?(:reading)
       subjects[:writing] *= weighting[:writing] if subjects.has_key?(:writing)
       [name, subjects]
@@ -218,9 +212,7 @@ class HeadcountAnalyst
 
   def calculate_growth(data, subject)
     data.map do |results|
-      name = results[0]
-      growth = growth_in_subject(results, subject)
-      [name, growth]
+      [results[0], growth_in_subject(results, subject)]
     end.to_h
   end
 
