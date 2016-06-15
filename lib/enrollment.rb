@@ -14,16 +14,16 @@ class Enrollment
   end
 
   def kindergarten_participation
-    @enrollment_data[:kindergarten_participation]
+    enrollment_data[:kindergarten_participation]
   end
 
   def high_school_graduation
-    return @enrollment_data[:high_school_graduation] if hs_grad_data_existing?
+    return enrollment_data[:high_school_graduation] if hs_grad_data_existing?
     @enrollment_data[:high_school_graduation] = {}
   end
 
   def hs_grad_data_existing?
-    @enrollment_data.has_key?(:high_school_graduation)
+    enrollment_data.has_key?(:high_school_graduation)
   end
 
   def kinder_participation_floats
@@ -47,7 +47,7 @@ class Enrollment
   end
 
   def data_in_year(query_year, grade_level)
-    data = @enrollment_data[grade_level].find do |year, percent|
+    data = enrollment_data[grade_level].find do |year, percent|
       year == query_year
     end
     truncate_float(data[1].to_f) unless data.nil?

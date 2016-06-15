@@ -115,7 +115,7 @@ class EconomicProfileRepositoryTest < Minitest::Test
 
   def test_it_can_add_free_or_reduced_lunch_data_to_a_new_econ_profile_object_and_add_to_repo
     epr = EconomicProfileRepository.new
-    data = {:name => "Academy 20", :lunch => {2008 => {:percentage => 0.445}}}
+    data = {:name => "Academy 20", :free_or_reduced_price_lunch => {2008 => {:percentage => 0.445}}}
     existing = nil
 
     epr.add_lunch_data(data, existing)
@@ -126,7 +126,7 @@ class EconomicProfileRepositoryTest < Minitest::Test
 
   def test_it_can_add_free_or_reduced_lunch_data_to_an_existing_econ_profile_with_no_lunch_data
     epr = EconomicProfileRepository.new
-    data = {:name => "Academy 20", :lunch => {2008 => {:percentage => 0.445}}}
+    data = {:name => "Academy 20", :free_or_reduced_price_lunch => {2008 => {:percentage => 0.445}}}
     existing = EconomicProfile.new({:name => "Academy 20"})
     epr.add_econ_profile_data(existing)
     epr.add_lunch_data(data, existing)
@@ -134,7 +134,7 @@ class EconomicProfileRepositoryTest < Minitest::Test
     expected = {2008 => {:percentage => 0.445}}
     assert_equal expected, epr.find_by_name("academy 20").free_or_reduced_price_lunch
 
-    data_n = {:name => "Academy 20", :lunch => {2008 => {:total => 105}}}
+    data_n = {:name => "Academy 20", :free_or_reduced_price_lunch => {2008 => {:total => 105}}}
     epr.add_lunch_data(data_n, epr.find_by_name('academy 20'))
     expected = {2008 => {:percentage => 0.445, :total => 105}}
     assert_equal expected, epr.find_by_name('academy 20').free_or_reduced_price_lunch
@@ -142,7 +142,7 @@ class EconomicProfileRepositoryTest < Minitest::Test
 
   def test_it_can_add_free_or_reduced_lunch_data_to_existing_that_lacks_data_for_that_year
     epr = EconomicProfileRepository.new
-    data = {:name => "Academy 20", :lunch => {2008 => {:percentage => 0.445}}}
+    data = {:name => "Academy 20", :free_or_reduced_price_lunch => {2008 => {:percentage => 0.445}}}
     existing = EconomicProfile.new({:name => "Academy 20", :free_or_reduced_price_lunch => {2009 => {:percentage => 0.523}}})
     epr.add_econ_profile_data(existing)
     epr.add_lunch_data(data, existing)

@@ -22,10 +22,6 @@ class StatewideTest
     test_data[race]
   end
 
-  def grade_levels
-    {3 => :third_grade, 8 => :eighth_grade}
-  end
-
   def grade_year_data(grade, year)
     grade_data(grade)[year] unless grade_data(grade).nil? || grade.nil?
   end
@@ -36,8 +32,27 @@ class StatewideTest
 
   def proficient_by_grade(grade)
     raise UnknownDataError unless grade == 3 || grade == 8
-    sort_and_truncate(grade_data(grade_levels[grade]))
+    sort_and_truncate(grade_data(grade_level_symbols[grade]))
   end
+
+  def proficient_by_race_or_ethnicity(race)
+    raise UnknownRaceError unless races.has_key?(race)
+    sort_and_truncate(race_data(races[race]))
+  end
+
+  def proficient_for_subject_by_grade_in_year(subject, grade, year)
+    raise UnknownDataError unless data_exists(subject, grade, year)
+    result = proficient_by_grade(grade)[year][subject]
+    result == 0.0 ? "N/A" : result
+  end
+
+  def proficient_for_subject_by_race_in_year(subject, race, year)
+    raise UnknownDataError unless data_exists(subject, race, year)
+    result = proficient_by_race_or_ethnicity(race)[year][subject]
+    result == 0.0 ? "N/A" : result
+  end
+
+  private
 
   def sort_and_truncate(data)
     data.map do |year_or_race, subjects|
@@ -46,6 +61,26 @@ class StatewideTest
       end.sort_by {|subject, percent| subject }.to_h
       [year_or_race, sorted_subjects]
     end.sort_by {|year_or_race, subject| year_or_race}.to_h
+  end
+
+  def data_exists(subject, grade_or_race, year)
+    has_subject?(subject) && has_race_or_grade_in_year?(grade_or_race, year)
+  end
+
+  def has_subject?(subject)
+    subjects.include?(subject)
+  end
+
+  def has_race(race, year)
+    race_year_data(races[race], year)
+  end
+
+  def has_grade(grade, year)
+    grade_year_data(grade_level_symbols[grade], year)
+  end
+
+  def has_race_or_grade_in_year?(grade_or_race, year)
+    has_grade(grade_or_race, year) || has_race(grade_or_race, year)
   end
 
   def races
@@ -60,29 +95,8 @@ class StatewideTest
     [:math, :reading, :writing]
   end
 
-  def proficient_by_race_or_ethnicity(race)
-    raise UnknownRaceError unless races.has_key?(race)
-    sort_and_truncate(race_data(races[race]))
-  end
-
-  def data_exists(subject, grade_or_race, year)
-    subjects.include?(subject) &&
-    (grade_data(grade_levels[grade_or_race]) ||
-     race_data(races[grade_or_race])) &&
-    (race_year_data(races[grade_or_race], year) ||
-     grade_year_data(grade_levels[grade_or_race], year))
-  end
-
-  def proficient_for_subject_by_grade_in_year(subject, grade, year)
-    raise UnknownDataError unless data_exists(subject, grade, year)
-    result = proficient_by_grade(grade)[year][subject]
-    result == 0.0 ? "N/A" : result
-  end
-
-  def proficient_for_subject_by_race_in_year(subject, race, year)
-    raise UnknownDataError unless data_exists(subject, race, year)
-    result = proficient_by_race_or_ethnicity(race)[year][subject]
-    result == 0.0 ? "N/A" : result
+  def grade_level_symbols
+    {3 => :third_grade, 8 => :eighth_grade}
   end
 
 end
