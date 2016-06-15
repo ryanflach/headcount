@@ -120,7 +120,7 @@ class HeadcountAnalystTest < Minitest::Test
   def test_it_raises_an_error_if_weighting_is_provided_but_does_not_add_to_1
     ha = HeadcountAnalyst.new
     assert_raises(InsufficientInformationError) do
-      ha.weight_check({:math => 0.4, :reading => 0.5, :writing => 0.0})
+      ha.weighting_check({:weighting => {:math => 0.4, :reading => 0.5, :writing => 0.0}})
     end
   end
 

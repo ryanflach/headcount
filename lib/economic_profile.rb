@@ -35,14 +35,12 @@ class EconomicProfile
       year.between?(year_range.first, year_range.last)
     end
     raise UnknownDataError if data.empty?
-    total = data.reduce(0) {|result, values| result += values[1]}
-    total / data.count
+    data.reduce(0) {|result, values| result += values[1]} / data.count
   end
 
   def median_household_income_average
-    incomes_all_years = median_household_income.values
-    total = incomes_all_years.reduce(:+)
-    total / incomes_all_years.count
+    all_incomes = median_household_income.values
+    total = all_incomes.reduce(:+) / all_incomes.count
   end
 
   def children_in_poverty_in_year(year)

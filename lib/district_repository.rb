@@ -43,16 +43,6 @@ class DistrictRepository
     end
   end
 
-  def check_repository_type(key)
-    possible_repos[key]
-  end
-
-  def possible_repos
-    {:enrollment => @enrollment,
-     :statewide_testing => @statewide_testing,
-     :economic_profile => @economic_profile}
-  end
-
   def find_enrollment(name)
     @enrollment.find_by_name(name)
   end
@@ -63,6 +53,16 @@ class DistrictRepository
 
   def find_econ_data(name)
     @economic_profile.find_by_name(name)
+  end
+
+  def check_repository_type(key)
+    possible_repos[key]
+  end
+
+  def possible_repos
+    {:enrollment        => @enrollment,
+     :statewide_testing => @statewide_testing,
+     :economic_profile  => @economic_profile}
   end
 
 end
